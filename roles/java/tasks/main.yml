@@ -1,51 +1,27 @@
 ---
 # tasks file for roles/java
-- name: Check if dns entry is defined in /etc/resolv.conf
-  command:
-    cmd: 'grep -q 8.8.8.8 /etc/resolv.conf'
-  register: google_in_resolv
-  changed_when: false
-  failed_when: false
-
-- when: google_in_resolv.failed
-  name: fix dns issue with google dns
-  become: true
-  become_user: root
-  shell: 'echo "nameserver 8.8.8.8" > /etc/resolv.conf'
-
 - name: check for JDK on remote box
   stat:
     path: '{{ java_home }}'
   register: remote_java
   failed_when: false
 
-- name: Download file with check (md5)
-  get_url:
-    url: "{{ dependencies_url.jdk }}"
-    dest: "{{ download_location }}"
-    checksum: "md5:{{ jdk_md5_checksum }}"
-    timeout: 570
-  register: remote_jdk_tar
-  when: not remote_java.stat.exists
+- name: Create Java Home directory
+  file: 
+    path: "{{ java_home}}/"
+    state: directory
 
 - name: Unarchive jdk tar.gz
-  unarchive:
-    src: "{{ download_location }}/{{ jdk_tar_file }}"
-    dest: "{{ download_location }}"
-    remote_src: true
-    mode: 'u=rwx,g=rx,o=rx'
-  when: not remote_java.stat.exists
-
-- name: Copy Java
   become: true
   become_user: root
-  copy:
-    src: "{{ download_location }}/{{ jdk_folder }}/"
-    dest: "{{ java_home }}"
-    remote_src: true
+  unarchive:
+    # wget https://github.com/AdoptOpenJDK/openjdk11-upstream-binaries/releases/download/jdk-11.0.7+10/OpenJDK11U-jdk_x64_linux_11.0.7_10.tar.gz
+    src: ../files/OpenJDK11U-jdk_x64_linux_11.0.7_10.tar.gz 
+    dest: "{{ java_home}}/"
+    remote_src: no
     owner: root
     group: root
-    mode: 'u=rwx,g=rx,o=rx'
+    mode: 'u=rwx,g=rx,o=rx'    
   when: not remote_java.stat.exists
 
 - name: Check if setenv file exists

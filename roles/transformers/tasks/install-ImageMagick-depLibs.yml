@@ -1,0 +1,22 @@
+---
+
+- name: Make dependent lib temp directory
+  file:
+    #path: "{{ download_location }}/ImageMagick_offlinerepo"
+    path: "/tmp/im-offlinerepo"
+    state: directory
+    
+- name: Transfer offline repo
+  unarchive:
+    src: "{{ role_path }}/files/CentOS{{ ansible_distribution_major_version }}/im-offlinerepo.tar.xz"
+    dest: "/tmp/"
+    
+- name: Copy offline repo descriptor
+  become: yes
+  become_user: root 
+  copy:
+    src: "{{ role_path }}/files/CentOS{{ ansible_distribution_major_version }}/offline-im.repo"
+    dest: "/etc/yum.repos.d/"
+    
+
+

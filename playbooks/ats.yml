@@ -1,0 +1,15 @@
+---
+- name: Transformers Role
+  hosts: transformers
+  become: true
+  become_method: sudo
+  roles:
+    - role: '../roles/transformers'
+  tags:
+    - transformers
+  vars:
+    targetATSIP: ec2-18-204-2-0.compute-1.amazonaws.com
+
+    
+
+

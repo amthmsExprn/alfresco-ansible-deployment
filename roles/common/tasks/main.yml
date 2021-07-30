@@ -7,16 +7,16 @@
   include_vars: "nexus.yml"
   failed_when: false
 
-- name: Ensure a list of packages installed
-  become: true
-  package:
-    name: "{{ item }}"
-    state: present
-  poll: 0
-  loop: "{{ utils }}"
+#- name: Ensure a list of packages installed
+#  become: true
+#  package:
+#    name: "{{ item }}"
+#    state: present
+#  poll: 0
+#  loop: "{{ utils }}"
 
 - name: "Create {{ group_name }} group"
-  group:
+  group:  
       name: "{{ group_name }}"
       system: true
 
