@@ -1,3 +1,7 @@
+# This fork provides a means to perform a disconnected install of the Transformer role.
+For now, only ImageMagick can be installed into an offline RHEL7 server (ie a host that cannot connect to the internet or has no RPM repositories to retrieve packages).
+
+
 # Alfresco Ansible Deployment
 
 This project provides an [Ansible](https://www.ansible.com) playbook capable of deploying Alfresco Content Services (ACS) Enterprise 7.x or 6.2.N.
