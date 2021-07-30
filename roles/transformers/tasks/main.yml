@@ -51,5 +51,83 @@
     disable_gpg_check: yes
     state: present
   when: transfer_img_libs_dist is succeeded and magick_exists.rc != 0
+
+- name: Check if LibreOffice exists
+  command:
+    cmd: "{{ libreoffice_home }}/program/soffice --version"
+  register: loffice_exists
+  failed_when: false
+  changed_when: loffice_exists.rc != 0
+
+#- name: "Download libreoffice {{ libreoffice }} rpm tar.gz"
+#  copy:
+#    src: "{{ role_path }}/files/libreoffice-dist-{{ libreoffice }}-linux.gz"
+#    dest: "{{ download_location }}/libreoffice.tar.gz"
+#    mode: 0
+#  register: libreoffice_transfer
+#  when: loffice_exists.rc != 0
+
+- name: Extract libreoffice-dist-linux.gz
+  become: true
+  unarchive:
+    src: "{{ role_path }}/files/libreoffice-dist-{{ libreoffice }}-linux.gz"
+    dest: "{{ download_location }}/"
+    remote_src: false
+  when: loffice_exists.rc != 0
+  
+#- name: install LibreOffice
+#  yum:
+#    name: "{{ download_location }}/LibreOffice*/RPMS/*.rpm"
+#    disablerepo: "\\*"
+#    enablerepo: "offline-im"
+#    releasever: "{{ ansible_distribution_major_version }}"
+#    disable_gpg_check: yes
+#    state: present
+#  when: loffice_exists.rc != 0
+#  changed_when: false  
+
+
+
+
+
+- name: Find all rpm files in "{{ download_location }}/LibreOffice*/RPMS" folder
+  find:
+    paths: "{{ download_location }}/LibreOffice*/RPMS"
+    patterns: "*.rpm"
+  register: rpm_files
+
+- name: Setting rpm_list
+  set_fact:
+    rpm_list: "{{ rpm_files.files | map(attribute='path') | list}}"
+
+- name: install LibreOffice rpm files
+  yum:
+    name: "{{rpm_list}}"
+    disablerepo: "\\*"
+    enablerepo: "offline-im"
+    releasever: "{{ ansible_distribution_major_version }}"
+    disable_gpg_check: yes
+    state: present
+  when: loffice_exists.rc != 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   
 ...
