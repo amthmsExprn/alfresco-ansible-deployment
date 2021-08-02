@@ -68,7 +68,6 @@
 #  when: loffice_exists.rc != 0
 
 - name: Extract libreoffice-dist-linux.gz
-  become: true
   unarchive:
     src: "{{ role_path }}/files/libreoffice-dist-{{ libreoffice }}-linux.gz"
     dest: "{{ download_location }}/"
@@ -87,16 +86,26 @@
 #  changed_when: false  
 
 
-
+#Hack to work around the find module using the asterisk literally instead of a wild card.
+- name: Move versioned LibreOffice directory to generic
+  become: yes
+  become_user: root
+  command: bash -c 'mv {{ download_location }}/LibreOffice* {{ download_location }}/LibreOffice'
+  #command: "mv {{ download_location }}/LibreOffice*/RPMS {{ download_location }}/LibreOffice/RPMS"
+  when: loffice_exists.rc != 0
 
 
 - name: Find all rpm files in "{{ download_location }}/LibreOffice*/RPMS" folder
   find:
-    paths: "{{ download_location }}/LibreOffice*/RPMS"
+    paths: "{{ download_location }}/LibreOffice/RPMS"
+    #paths: "{{ download_location }}/LibreOffice_6.3.5.2_Linux_x86-64_rpm/RPMS"
     patterns: "*.rpm"
+    recurse: true
   register: rpm_files
 
 - name: Setting rpm_list
+  become: true
+  become_user: root
   set_fact:
     rpm_list: "{{ rpm_files.files | map(attribute='path') | list}}"
 

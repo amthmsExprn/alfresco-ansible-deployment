@@ -8,7 +8,7 @@
   tags:
     - transformers
   vars:
-    targetATSIP: ec2-54-173-152-75.compute-1.amazonaws.com
+    targetATSIP: ec2-35-175-242-164.compute-1.amazonaws.com 
 
     
 
