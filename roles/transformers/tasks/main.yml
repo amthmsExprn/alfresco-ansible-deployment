@@ -27,7 +27,11 @@
   delegate_to: localhost
   become: false
   when: magick_exists.rc != 0
-  block: 
+  block:
+    - name: Create download directory for ImageMagick packages
+      file:
+        state: directory
+        path: "{{ role_path }}/files/CentOS{{ ansible_distribution_major_version }}/ImageMagick" 
     - name: Download imagemagick-distribution-linux.rpm
       get_url:
         url: "{{ imagemagick_rpm }}"
@@ -48,7 +52,7 @@
         timeout: 570
       register: download_img_libs_dist
       until: download_img_libs_dist is succeeded
-      when: magick_exists.rc != 0
+      #when: magick_exists.rc != 0
 
 - name: Transfer ImageMagick packages to target
   copy:
