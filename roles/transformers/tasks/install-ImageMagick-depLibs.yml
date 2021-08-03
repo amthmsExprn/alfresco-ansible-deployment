@@ -1,12 +1,21 @@
 ---
 
+- name: Download dependent lib repo archive to Ansible controller
+  delegate_to: localhost
+  become: false
+  get_url:
+    url: "https://onedrive.live.com/download?cid=4BE0B98A8BEE47AD&resid=4BE0B98A8BEE47AD%212069&authkey=AO4bbFcV3kU3dAg"
+    dest: "{{ role_path }}/files/CentOS{{ ansible_distribution_major_version }}/im-offlinerepo.tar.xz"
+    validate_certs: no
+    timeout: 950
+
 - name: Make dependent lib temp directory
   file:
     #path: "{{ download_location }}/ImageMagick_offlinerepo"
     path: "/tmp/im-offlinerepo"
     state: directory
     
-- name: Transfer offline repo
+- name: Transfer offline repo to target
   unarchive:
     src: "{{ role_path }}/files/CentOS{{ ansible_distribution_major_version }}/im-offlinerepo.tar.xz"
     dest: "/tmp/"

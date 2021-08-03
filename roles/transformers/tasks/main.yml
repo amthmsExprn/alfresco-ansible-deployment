@@ -23,10 +23,38 @@
 #  poll: 0
 #  loop: "{{ utils_transform }}"
 
-- name: Transfer ImageMagick libs
+- name: Download ImageMagick installer to Ansible controller
+  delegate_to: localhost
+  become: false
+  when: magick_exists.rc != 0
+  block: 
+    - name: Download imagemagick-distribution-linux.rpm
+      get_url:
+        url: "{{ imagemagick_rpm }}"
+        dest: "{{ role_path }}/files/CentOS{{ ansible_distribution_major_version }}/ImageMagick/imagemagick-distribution-linux.rpm"
+        #mode: 0444
+        url_username: "{{ nexus_user }}"
+        url_password: "{{ nexus_password }}"
+        timeout: 570
+      register: download_img_dist
+      until: download_img_dist is succeeded
+    - name: Download imagemagick-distribution-libs-linux.rpm
+      get_url:
+        url: "{{ imagemagick_lib_rpm }}"
+        dest: "{{ role_path }}/files/CentOS{{ ansible_distribution_major_version }}/ImageMagick/imagemagick-distribution-libs-linux.rpm"
+        #mode: 0444
+        url_username: "{{ nexus_user }}"
+        url_password: "{{ nexus_password }}"
+        timeout: 570
+      register: download_img_libs_dist
+      until: download_img_libs_dist is succeeded
+      when: magick_exists.rc != 0
+
+- name: Transfer ImageMagick packages to target
   copy:
     src: "{{ role_path }}/files/CentOS{{ ansible_distribution_major_version }}/ImageMagick"
     dest: "{{ download_location }}/"
+    mode: 0444
   register: transfer_img_libs_dist
   until: transfer_img_libs_dist is succeeded
   when: magick_exists.rc != 0
@@ -34,7 +62,7 @@
   
 - name: install imagemagick-distribution-libs
   yum:
-    name: "{{ download_location }}/ImageMagick/imagemagick-distribution-7.0.10-11-libs-linux.rpm"
+    name: "{{ download_location }}/ImageMagick/imagemagick-distribution-libs-linux.rpm"
     disablerepo: "\\*"
     enablerepo: "offline-im"
     releasever: "{{ ansible_distribution_major_version }}"
@@ -44,7 +72,7 @@
   
 - name: install imagemagick-distribution
   yum:
-    name: "{{ download_location }}/ImageMagick/imagemagick-distribution-7.0.10-11-linux.rpm"
+    name: "{{ download_location }}/ImageMagick/imagemagick-distribution-linux.rpm"
     disablerepo: "\\*"
     enablerepo: "offline-im"
     releasever: "{{ ansible_distribution_major_version }}"
@@ -59,31 +87,43 @@
   failed_when: false
   changed_when: loffice_exists.rc != 0
 
-#- name: "Download libreoffice {{ libreoffice }} rpm tar.gz"
-#  copy:
-#    src: "{{ role_path }}/files/libreoffice-dist-{{ libreoffice }}-linux.gz"
-#    dest: "{{ download_location }}/libreoffice.tar.gz"
-#    mode: 0
-#  register: libreoffice_transfer
-#  when: loffice_exists.rc != 0
 
-- name: Extract libreoffice-dist-linux.gz
+- name: Download LibreOffice installer to Ansible controller
+  delegate_to: localhost
+  become: false
+  when: loffice_exists.rc != 0
+  block:
+    - name: "Download libreoffice {{ libreoffice }} rpm tar.gz"
+      get_url:
+        url: "{{ libreoffice_rpm }}"
+        #dest: "{{ download_location }}/libreoffice.tar.gz"
+        dest: "{{ role_path }}/files/libreoffice.tar.gz"
+        url_username: "{{ nexus_user }}"
+        url_password: "{{ nexus_password }}"
+        #mode: 0444
+        timeout: 950
+      register: libreoffice_download
+      async: 900
+      poll: 0
+      
+    - name: Verifying if libreoffice finished downloading
+      #become: true
+      #become_user: root
+      async_status:
+        jid: "{{ libreoffice_download.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      delay: 30
+      retries: 30
+      when: loffice_exists.rc != 0
+
+- name: Extract libreoffice-dist-linux.gz from Ansible controller into target
   unarchive:
-    src: "{{ role_path }}/files/libreoffice-dist-{{ libreoffice }}-linux.gz"
+    src: "{{ role_path }}/files/libreoffice.tar.gz"
     dest: "{{ download_location }}/"
     remote_src: false
+    mode: 0444
   when: loffice_exists.rc != 0
-  
-#- name: install LibreOffice
-#  yum:
-#    name: "{{ download_location }}/LibreOffice*/RPMS/*.rpm"
-#    disablerepo: "\\*"
-#    enablerepo: "offline-im"
-#    releasever: "{{ ansible_distribution_major_version }}"
-#    disable_gpg_check: yes
-#    state: present
-#  when: loffice_exists.rc != 0
-#  changed_when: false  
 
 
 #Hack to work around the find module using the asterisk literally instead of a wild card.
@@ -94,11 +134,9 @@
   #command: "mv {{ download_location }}/LibreOffice*/RPMS {{ download_location }}/LibreOffice/RPMS"
   when: loffice_exists.rc != 0
 
-
 - name: Find all rpm files in "{{ download_location }}/LibreOffice*/RPMS" folder
   find:
     paths: "{{ download_location }}/LibreOffice/RPMS"
-    #paths: "{{ download_location }}/LibreOffice_6.3.5.2_Linux_x86-64_rpm/RPMS"
     patterns: "*.rpm"
     recurse: true
   register: rpm_files
@@ -145,7 +183,6 @@
     - name: Download alfresco-pdf-renderer-linux.tgz
       delegate_to: localhost
       become: false
-      #become_user: "{{ ansible_user_id }}"
       get_url:
         url: "{{ alfresco_pdf_renderer_lib_rpm }}"
         dest: "{{ role_path }}/files/alfresco-pdf-renderer-{{ pdf_renderer }}-linux.tgz"

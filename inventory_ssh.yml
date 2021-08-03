@@ -54,6 +54,7 @@ all:
         transformers_1:
           connection: ssh
           ansible_host: "{{ targetATSIP }}"
+          #ssh ansible_private_key_file: "vmware-migration.osk"
           ansible_private_key_file: "~/AWS-OktaSE-WM.pem"
           ansible_user: ec2-user           
           ansible_ssh_common_args: "-o UserKnownHostsFile=/dev/null -o ControlMaster=auto -o ControlPersist=60s -o ForwardX11=no -o LogLevel=ERROR -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"

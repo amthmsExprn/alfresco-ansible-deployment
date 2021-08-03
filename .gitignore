@@ -1,5 +1,6 @@
 # Ignore large files
 roles/transformers/files/CentOS7/im-offlinerepo.tar.xz
+roles/transformers/files/libreoffice.tar.gz
 roles/transformers/files/libreoffice-dist-6.3.5-linux.gz
 roles/transformers/files/alfresco-pdf-renderer-1.1-linux.tgz
 roles/transformers/files/alfresco-transform-core-aio-boot-2.3.10.jar
