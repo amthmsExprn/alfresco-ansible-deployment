@@ -176,8 +176,8 @@
         path: "{{ ats_home }}/alfresco-pdf-renderer"
       register: alfresco_pdf_renderer_exists
     - name: Check if alfresco-pdf-renderer archive exists
-      delegate_to: localhost
-      become: false
+      #delegate_to: localhost
+      #become: false
       stat:
         path: "{{ download_location }}/alfresco-pdf-renderer-{{ pdf_renderer }}-linux.tgz"
       register: alfresco_pdf_renderer_tgz_exists

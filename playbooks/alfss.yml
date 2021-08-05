@@ -1,0 +1,13 @@
+---
+- name: Alfresco Search Role
+  hosts: search
+  become: true
+  become_method: sudo
+  roles:
+    - role: '../roles/search'
+  tags:
+    - search
+  vars:
+    targetASSIP: ec2-52-207-219-201.compute-1.amazonaws.com
+    #targetASSIP: 52.91.199.69
+

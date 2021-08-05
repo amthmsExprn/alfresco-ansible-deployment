@@ -1,0 +1,5 @@
+[offline-ss]
+name=CentOS-$releasever - AlfrescoSearchServices
+baseurl=file:///tmp/searchSerOfflineDep
+enabled=0
+gpgcheck=0

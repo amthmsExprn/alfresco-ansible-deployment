@@ -11,7 +11,6 @@
   become: false
   get_url:
     url: "{{ dependencies_url.jdk }}"
-    #dest: "{{ download_location }}"
     dest: "{{ role_path }}/files"
     checksum: "md5:{{ jdk_md5_checksum }}"
     timeout: 570
@@ -29,28 +28,46 @@
 - name: Copy Java
   become: true
   become_user: root
-  copy:
-    src: "{{ download_location }}/{{ jdk_folder }}/"
-    dest: "{{ java_home }}"
-    remote_src: true
-    owner: root
-    group: root
-    mode: 'u=rwx,g=rx,o=rx'
   when: not remote_java.stat.exists
-
+  block:
+#    - name: Get name of embedded JDK directory
+#      #command: "ls -d {{ download_location }}/{{ jdk_folder }}/"
+#      find:
+#        paths: "{{ download_location }}/{{ jdk_folder }}/"
+#        file_type: directory
+#      register: jdk_tar_inside_directory
+    - name: Copy JDK binaries to $JAVA_HOME
+      copy:
+        #src: "{{ download_location }}/{{ jdk_folder }}/{{ jdk_tar_inside_directory[0] }}"
+        src: "{{ download_location }}/{{ jdk_folder }}/"
+        dest: "{{ java_home }}"
+        remote_src: true
+        owner: root
+        group: root
+        mode: 'u=rwx,g=rx,o=rx'
 
 - name: Check if setenv file exists
   stat:
     path: "{{ config_folder }}/setenv.sh"
   register: setenv_exists
 
-- name: Add setenv bash file
+- name: Add setenv bash file and set to run on login
   become: true
   become_user: "{{ username }}"
-  template:
-    src: setenv.sh
-    dest: "{{ config_folder }}/setenv.sh"
-    owner: "{{ username }}"
-    group: "{{ group_name }}"
-    mode: 'u=rwx,g=rx,o=rx'
   when: not setenv_exists.stat.exists
+  block:
+    - name: Create setenv file from template 
+      template:
+        src: setenv.sh
+        dest: "{{ config_folder }}/setenv.sh"
+        owner: "{{ username }}"
+        group: "{{ group_name }}"
+        mode: 'u=rwx,g=rx,o=rx'
+    - name:     Add setenv to bashrc
+      ansible.builtin.lineinfile:
+        path: "~/.bashrc"
+        insertafter: EOF
+        create: no
+        line: ". {{ config_folder }}/setenv.sh"
+
+  
