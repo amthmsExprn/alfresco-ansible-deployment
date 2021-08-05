@@ -1,5 +1,5 @@
 # This fork provides a means to perform a disconnected install of the Transformer role.
-For now, only the transformer role (ImageMagick, LibreOffice AIO ATS) can be installed into an offline RHEL7 server (ie a host that cannot connect to the internet or has no RPM repositories to retrieve packages). Use the [ATS playbook](https://github.com/alf-wchong/alfresco-ansible-deployment/blob/Disconnected/playbooks/ats.yml) for the disconnected install. Remember to change the [host/IP of the target](https://github.com/alf-wchong/alfresco-ansible-deployment/blob/a98e00be3e9a6c44b429f6f0280aeb6fec7d117e/playbooks/ats.yml#L11) in the playbook.
+For now, only the search and transformer role (ImageMagick, LibreOffice AIO ATS) can be installed into an offline RHEL7 server (ie a host that cannot connect to the internet or has no RPM repositories to retrieve packages). Use the [ATS playbook](https://github.com/alf-wchong/alfresco-ansible-deployment/blob/Disconnected/playbooks/ats.yml) for the disconnected install. Remember to change the [host/IP of the target](https://github.com/alf-wchong/alfresco-ansible-deployment/blob/a98e00be3e9a6c44b429f6f0280aeb6fec7d117e/playbooks/ats.yml#L11) in the playbook.
 
 
 # Alfresco Ansible Deployment
