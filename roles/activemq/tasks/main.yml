@@ -6,39 +6,41 @@
   register: activemq_exe
 
 - name: Download activemq tar
-  become: true
-  become_user: root
-  get_url:
-    url: "{{ dependencies_url.activemq }}"
-    dest: "/opt/apache-activemq-{{ dependencies_version.activemq }}-bin.tar.gz"
-    mode: 'u=rwx,g=rwx,o=rx'
-    owner: "{{ username }}"
-    group: "{{ group_name }}"
-  register: activemq_download
   when: not activemq_exe.stat.exists
-  async: 900
-  poll: 0
-
-- name: Check on activemq download async task
-  become: true
-  become_user: root
-  async_status:
-    jid: "{{ activemq_download.ansible_job_id }}"
-  register: job_result
-  until: job_result.finished
-  delay: 5
-  retries: 300
-  when: not activemq_exe.stat.exists
-
-- name: Extract apache-activemq-{{ dependencies_version.activemq }}-bin.tar.gz into /opt
-  become: true
-  unarchive:
-    src: "/opt/apache-activemq-{{ dependencies_version.activemq }}-bin.tar.gz"
-    dest: "/opt"
-    remote_src: true
-    owner: "{{ username }}"
-    group: "{{ group_name }}"
-  when: job_result is succeeded
+  block:
+    - name: Create download directory in Ansible controller
+      delegate_to: localhost
+      become: false
+      file:
+        path: "{{ role_path }}/files/"
+        state: directory
+    - name: Download activemq tar to Ansible controller
+      delegate_to: localhost
+      become: false
+      get_url:
+        url: "{{ dependencies_url.activemq }}"
+        dest: "{{ role_path }}/files/apache-activemq-{{ dependencies_version.activemq }}-bin.tar.gz" 
+      register: activemq_download
+      async: 900
+      poll: 0
+    - name: Check on activemq download async task
+      delegate_to: localhost
+      become: false
+      async_status:
+        jid: "{{ activemq_download.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      delay: 5
+      retries: 300
+    - name: Transfer extracted activemq to target /opt
+      become: true
+      unarchive:
+        src: "{{ role_path }}/files/apache-activemq-{{ dependencies_version.activemq }}-bin.tar.gz"
+        dest: "/opt"
+        remote_src: false
+        owner: "{{ username }}"
+        group: "{{ group_name }}"
+      when: job_result is succeeded      
 
 - name: Move configuration files
   block:

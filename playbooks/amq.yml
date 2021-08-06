@@ -1,0 +1,12 @@
+---  
+
+- name: Activemq Role
+  hosts: activemq
+  become: true
+  become_method: sudo
+  roles:
+    - role: '../roles/activemq'
+  tags:
+    - activemq
+  vars:
+    targetAMQIP: ec2-52-207-219-201.compute-1.amazonaws.com
