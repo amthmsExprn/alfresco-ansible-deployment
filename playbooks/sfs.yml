@@ -1,4 +1,4 @@
-  
+---  
 
 - name: Shared File Store Role
   hosts: transformers
@@ -9,4 +9,4 @@
   tags:
     - sfs
   vars:
-    targetATSIP: ec2-54-209-93-238.compute-1.amazonaws.com    
+    targetATSIP: ec2-52-207-219-201.compute-1.amazonaws.com

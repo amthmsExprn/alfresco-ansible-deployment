@@ -10,6 +10,7 @@ roles/search/files/RedHat7/searchSerOfflineDep.xz
 roles/search/files/CentOS7/searchSerOfflineDep.xz
 roles/trouter/files/RedHat7/trouterSerOfflineDep.xz
 roles/trouter/files/alfresco-transform-router-1.3.2.jar
+roles/sfs/files/alfresco-shared-file-store-controller-0.13.0.jar
 
 inventory_test.yml
 
