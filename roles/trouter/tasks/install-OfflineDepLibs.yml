@@ -1,0 +1,61 @@
+---
+- name: Download dependent lib repo archive to Ansible controller
+  delegate_to: localhost
+  become: false
+  block:
+    - name: Create download path
+      file:
+        path: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}"
+        state: directory
+    - name: 
+      get_url:
+        url: "https://onedrive.live.com/download?cid=4BE0B98A8BEE47AD&resid=4BE0B98A8BEE47AD%212074&authkey=AClWIfiEMk7rVyA"
+        dest: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}/trouterSerOfflineDep.xz"
+        validate_certs: no
+        timeout: 950
+    
+
+
+- name: Create tmp dir to hold offline dependencies repo
+  file:
+    path: "/tmp/trouterSerOfflineDep/"
+    state: directory
+
+
+- name: Transfer offline repo to target
+  unarchive:
+    src: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}/trouterSerOfflineDep.xz"
+    dest: "/tmp/trouterSerOfflineDep/"
+
+    
+- name: Copy offline repo descriptor
+  become: yes
+  become_user: root 
+  copy:
+    src: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}/offline-trouter.repo"
+    dest: "/etc/yum.repos.d/"
+    
+    
+- name: Install dependant packages
+  become: true
+  become_user: root
+  block:
+    - name: Unzip
+      yum:
+        name: "/tmp/trouterSerOfflineDep/unzip-6.0-22.el7_9.x86_64.rpm"
+        state: present
+        #disablerepo: "\\*"
+        disablerepo: "*"
+        enablerepo: "offline-trouter"
+        releasever: "{{ ansible_distribution_major_version }}"
+        disable_gpg_check: yes
+    - name: Which
+      yum:
+        name: "/tmp/trouterSerOfflineDep/which-2.20-7.el7.x86_64.rpm"
+        state: present
+        #disablerepo: "\\*"
+        disablerepo: "*"
+        enablerepo: "offline-trouter"
+        releasever: "{{ ansible_distribution_major_version }}"
+        disable_gpg_check: yes    
+    

@@ -1,0 +1,11 @@
+---
+- name: T-Router Role
+  hosts: transformers
+  become: true
+  become_method: sudo
+  roles:
+    - { role: '../roles/trouter', when: acs.edition == "Enterprise" }
+  tags:
+    - trouter
+  vars:
+    targetATSIP: ec2-52-207-219-201.compute-1.amazonaws.com  

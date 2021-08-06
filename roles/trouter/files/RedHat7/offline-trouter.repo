@@ -1,0 +1,6 @@
+[offline-trouter]
+name=CentOS-$releasever - im
+baseurl=file:///tmp/trouterSerOfflineDep/
+enabled=0
+gpgcheck=0
+

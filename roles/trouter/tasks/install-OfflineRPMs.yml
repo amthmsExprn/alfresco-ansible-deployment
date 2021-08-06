@@ -1,0 +1,59 @@
+---
+- name: Download dependent lib repo archive to Ansible controller
+  delegate_to: localhost
+  become: false
+  block:
+    - name: Create download path
+      file:
+        path: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}"
+        state: directory
+    - name: 
+      get_url:
+        url: "https://onedrive.live.com/download?cid=4BE0B98A8BEE47AD&resid=4BE0B98A8BEE47AD%212073&authkey=ALtfM1fpT5j_kt0"
+        dest: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}/searchSerOfflineDep.xz"
+        validate_certs: no
+        timeout: 950
+    
+
+
+- name: Create tmp dir to hold offline dependencies repo
+  file:
+    path: "/tmp/searchSerOfflineDep/"
+    state: directory
+
+
+- name: Transfer offline repo to target
+  unarchive:
+    src: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}/searchSerOfflineDep.xz"
+    dest: "/tmp/searchSerOfflineDep/"
+
+    
+- name: Copy offline repo descriptor
+  become: yes
+  become_user: root 
+  copy:
+    src: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}/offline-ss.repo"
+    dest: "/etc/yum.repos.d/"
+    
+- name: Find all rpm files in /tmp folder
+  find:
+    paths: "/tmp/searchSerOfflineDep/"
+    patterns: "*.rpm"
+  register: rpm_files
+ 
+- name: Setting rpm_list
+  set_fact:
+   rpm_list: "{{ rpm_files.files | map(attribute='path') | list}}"
+
+- name: installing the rpm files
+  yum:
+    name: "{{rpm_list}}"
+    state: present  
+    #disablerepo: "\\*"
+    disablerepo: "*"
+    enablerepo: "offline-ss"
+    releasever: "{{ ansible_distribution_major_version }}"
+    disable_gpg_check: yes       
+    
+    
+    

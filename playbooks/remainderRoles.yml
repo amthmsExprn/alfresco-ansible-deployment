@@ -1,13 +1,4 @@
-- name: T-Router Role
-  hosts: transformers
-  become: true
-  become_method: sudo
-  roles:
-    - { role: '../roles/trouter', when: acs.edition == "Enterprise" }
-  tags:
-    - trouter
-  vars:
-    targetATSIP: ec2-54-209-93-238.compute-1.amazonaws.com    
+  
 
 - name: Shared File Store Role
   hosts: transformers
