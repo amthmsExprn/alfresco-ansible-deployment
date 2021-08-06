@@ -1,18 +1,21 @@
 # Ignore large files
+roles/activemq/files/apache-activemq*.tar.gz
+roles/java/files/OpenJDK11U-jdk_x64_linux*.tar.gz
+roles/nginx/files/RedHat7/ngixSerOfflineDep.xz
+roles/search/files/alfresco-search-services-2.0.1.zip
+roles/search/files/RedHat7/searchSerOfflineDep.xz
+roles/search/files/CentOS7/searchSerOfflineDep.xz
+roles/sfs/files/alfresco-shared-file-store-controller-*.jar
+roles/sync/files/sync-dist-6.x-3.4.0.zip
 roles/transformers/files/CentOS7/im-offlinerepo.tar.xz
 roles/transformers/files/libreoffice.tar.gz
 roles/transformers/files/libreoffice-dist-*.gz
 roles/transformers/files/alfresco-pdf-renderer-*.tgz
 roles/transformers/files/alfresco-transform-core-aio-boot-*.jar
-roles/java/files/OpenJDK11U-jdk_x64_linux_11.0.7_10.tar.gz
-roles/search/files/alfresco-search-services-2.0.1.zip
-roles/search/files/RedHat7/searchSerOfflineDep.xz
-roles/search/files/CentOS7/searchSerOfflineDep.xz
+roles/transformers/files/CentOS7/ImageMagick/imagemagick-distribution-libs-linux.rpm
+roles/transformers/files/RedHat7/ImageMagick/imagemagick-distribution-libs-linux.rpm
 roles/trouter/files/RedHat7/trouterSerOfflineDep.xz
 roles/trouter/files/alfresco-transform-router-*jar
-roles/sfs/files/alfresco-shared-file-store-controller-*.jar
-roles/activemq/files/apache-activemq*.tar.gz
-roles/nginx/files/RedHat7/ngixSerOfflineDep.xz
 
 inventory_test.yml
 

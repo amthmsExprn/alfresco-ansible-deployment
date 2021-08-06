@@ -1,0 +1,9 @@
+---
+- name: Sync Service Role
+  hosts: syncservice
+  become: true
+  become_method: sudo
+  roles:
+    - { role: '../roles/sync', when: acs.edition == "Enterprise" }
+  tags:
+    - sync
