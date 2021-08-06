@@ -15,6 +15,8 @@
   delay: 6
   until: yum_lock.stdout_lines|length <= 2
   changed_when: false
+  
+- include_tasks: install-nginxrpm.yml
 
 - name: Ensure nginx is installed.
   package:

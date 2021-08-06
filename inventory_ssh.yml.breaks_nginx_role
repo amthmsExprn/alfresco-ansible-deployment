@@ -5,7 +5,7 @@ all:
       hosts:
         database_1:
           connection: ssh
-          ansible_host: "ec2-52-207-219-201.compute-1.amazonaws.com"
+          ansible_host: "{{ targetDBIP }}"
           ansible_private_key_file: "~/AWS-OktaSE-WM.pem"
           ansible_user: centos           
           ansible_ssh_common_args: "-o UserKnownHostsFile=/dev/null -o ControlMaster=auto -o ControlPersist=60s -o ForwardX11=no -o LogLevel=ERROR -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
@@ -13,7 +13,7 @@ all:
       hosts:
         repository_1:
           connection: ssh
-          ansible_host: "ec2-52-207-219-201.compute-1.amazonaws.com"
+          ansible_host: "{{ targetACSIP }}"
           ansible_private_key_file: "~/AWS-OktaSE-WM.pem"
           ansible_user: centos           
           ansible_ssh_common_args: "-o UserKnownHostsFile=/dev/null -o ControlMaster=auto -o ControlPersist=60s -o ForwardX11=no -o LogLevel=ERROR -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
@@ -21,7 +21,7 @@ all:
       hosts:
         activemq_1:
           connection: ssh
-          ansible_host: "ec2-52-207-219-201.compute-1.amazonaws.com"
+          ansible_host: "{{ targetAMQIP }}"
           ansible_private_key_file: "~/AWS-OktaSE-WM.pem"
           ansible_user: ec2-user           
           ansible_ssh_common_args: "-o UserKnownHostsFile=/dev/null -o ControlMaster=auto -o ControlPersist=60s -o ForwardX11=no -o LogLevel=ERROR -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
@@ -29,7 +29,7 @@ all:
       hosts:
         search_1:
           connection: ssh
-          ansible_host: "ec2-52-207-219-201.compute-1.amazonaws.com"
+          ansible_host: "{{ targetASSIP }}"
           ansible_private_key_file: "~/AWS-OktaSE-WM.pem"
           ansible_user: centos           
           ansible_ssh_common_args: "-o UserKnownHostsFile=/dev/null -o ControlMaster=auto -o ControlPersist=60s -o ForwardX11=no -o LogLevel=ERROR -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
@@ -37,7 +37,7 @@ all:
       hosts:
         nginx_1:
           connection: ssh
-          ansible_host: "ec2-52-207-219-201.compute-1.amazonaws.com"
+          ansible_host: "{{ targetNGINXIP }}"
           ansible_private_key_file: "~/AWS-OktaSE-WM.pem"
           ansible_user: ec2-user           
           ansible_ssh_common_args: "-o UserKnownHostsFile=/dev/null -o ControlMaster=auto -o ControlPersist=60s -o ForwardX11=no -o LogLevel=ERROR -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
@@ -45,7 +45,7 @@ all:
       hosts:
         adw_1:
           connection: ssh
-          ansible_host: "ec2-52-207-219-201.compute-1.amazonaws.com"
+          ansible_host: "{{ targetADWIP }}"
           ansible_private_key_file: "~/AWS-OktaSE-WM.pem"
           ansible_user: centos           
           ansible_ssh_common_args: "-o UserKnownHostsFile=/dev/null -o ControlMaster=auto -o ControlPersist=60s -o ForwardX11=no -o LogLevel=ERROR -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
@@ -53,7 +53,7 @@ all:
       hosts:
         transformers_1:
           connection: ssh
-          ansible_host: "ec2-52-207-219-201.compute-1.amazonaws.com"
+          ansible_host: "{{ targetATSIP }}"
           #ansible_private_key_file: "../vmware-migration.osk"
           #ansible_user: express
           ansible_private_key_file: "~/AWS-OktaSE-WM.pem"
@@ -63,7 +63,7 @@ all:
       hosts:
         syncservice_1:
           connection: ssh
-          ansible_host: "ec2-52-207-219-201.compute-1.amazonaws.com"
+          ansible_host: "{{ targetSSIP }}"
           ansible_private_key_file: "~/AWS-OktaSE-WM.pem"
           ansible_user: centos           
           ansible_ssh_common_args: "-o UserKnownHostsFile=/dev/null -o ControlMaster=auto -o ControlPersist=60s -o ForwardX11=no -o LogLevel=ERROR -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"

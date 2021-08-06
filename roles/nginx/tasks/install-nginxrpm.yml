@@ -1,0 +1,42 @@
+---
+- name: Download dependent lib repo archive to Ansible controller
+  delegate_to: localhost
+  become: false
+  block:
+    - name: Create download path
+      file:
+        path: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}"
+        state: directory
+    - name: 
+      get_url:
+        url: "https://onedrive.live.com/download?cid=4BE0B98A8BEE47AD&resid=4BE0B98A8BEE47AD%212075&authkey=AHxsiBcYzz_MiqM"
+        dest: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}/ngixSerOfflineDep.xz"
+        validate_certs: no
+        timeout: 950
+    
+- name: Create tmp dir to hold offline dependencies repo
+  file:
+    path: "/tmp/ngixSerOfflineDep/"
+    state: directory
+
+- name: Transfer offline repo to target
+  unarchive:
+    src: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}/ngixSerOfflineDep.xz"
+    dest: "/tmp/ngixSerOfflineDep/"
+    
+- name: Copy offline repo descriptor
+  become: yes
+  become_user: root 
+  copy:
+    src: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}/offline-nginx.repo"
+    dest: "/etc/yum.repos.d/"
+
+- name: Install Nginx
+  yum:
+    name: "nginx"
+    state: present
+    disablerepo: "*"
+    enablerepo: "offline-nginx"
+    releasever: "{{ ansible_distribution_major_version }}"
+    disable_gpg_check: yes
+    

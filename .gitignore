@@ -12,6 +12,7 @@ roles/trouter/files/RedHat7/trouterSerOfflineDep.xz
 roles/trouter/files/alfresco-transform-router-*jar
 roles/sfs/files/alfresco-shared-file-store-controller-*.jar
 roles/activemq/files/apache-activemq*.tar.gz
+roles/nginx/files/RedHat7/ngixSerOfflineDep.xz
 
 inventory_test.yml
 

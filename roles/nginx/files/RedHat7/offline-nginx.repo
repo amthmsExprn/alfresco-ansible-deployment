@@ -1,0 +1,5 @@
+[offline-nginx]
+name=CentOS-$releasever - AlfrescoSearchServices
+baseurl=file:///tmp/ngixSerOfflineDep
+enabled=0
+gpgcheck=0
