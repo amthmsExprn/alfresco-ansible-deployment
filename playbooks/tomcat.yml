@@ -1,0 +1,9 @@
+---
+- name: Alfresco Tomcat Role
+  hosts: repository
+  become: true
+  become_method: sudo
+  roles:
+    - role: '../roles/tomcat'
+  tags:
+    - tomcat

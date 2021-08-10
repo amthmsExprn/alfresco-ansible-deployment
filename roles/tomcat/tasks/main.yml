@@ -43,23 +43,32 @@
   changed_when: false
   register: tomcat_dir
 
+- name: Create Tomcat download directory on controller
+  delegate_to: localhost
+  become: false
+  file:
+    state: directory
+    path: "{{ role_path }}/files"
+
 - name: Download Tomcat
+  delegate_to: localhost
+  become: false
   get_url:
     url: "{{ dependencies_url.tomcat }}"
-    dest: "{{ download_location }}/apache-tomcat-{{ dependencies_version.tomcat }}.tar.gz"
+    #dest: "{{ download_location }}/apache-tomcat-{{ dependencies_version.tomcat }}.tar.gz"
+    dest: "{{ role_path }}/files/apache-tomcat-{{ dependencies_version.tomcat }}.tar.gz"
     timeout: 570
   register: download
   until: download is succeeded
   failed_when: false
-  become: true
-  become_user: root
   changed_when: tomcat_dir.rc !=0
 
 - name: Unarchive a file with extra options
   unarchive:
-    src: "{{ download_location }}/apache-tomcat-{{ dependencies_version.tomcat }}.tar.gz"
+    src: "{{ role_path }}/files/apache-tomcat-{{ dependencies_version.tomcat }}.tar.gz"
+    #src: "{{ download_location }}/apache-tomcat-{{ dependencies_version.tomcat }}.tar.gz"
     dest: "/opt/"
-    remote_src: true
+    remote_src: false
   become: true
   become_user: root
   failed_when: false

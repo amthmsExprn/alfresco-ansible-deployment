@@ -9,7 +9,8 @@ roles/repository/files/opt/alfresco/content-services-7.0.0/amps_repo/alfresco-ao
 roles/repository/files/opt/alfresco/content-services-*/amps_repo/alfresco-googledrive-repo-enterprise.amp
 roles/repository/files/opt/alfresco/content-services-*/web-server/webapps/api-explorer.war
 roles/sfs/files/alfresco-shared-file-store-controller-*.jar
-roles/sync/files/sync-dist-6.x-3.4.0.zip
+roles/sync/files/sync-dist-*.zip
+roles/tomcat/files/apache-tomcat*.tar.gz
 roles/search/files/alfresco-search-services-2.0.1.zip
 roles/search/files/RedHat7/searchSerOfflineDep.xz
 roles/search/files/CentOS7/searchSerOfflineDep.xz

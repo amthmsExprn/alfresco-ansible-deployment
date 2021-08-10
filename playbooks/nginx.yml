@@ -7,10 +7,7 @@
     - role: '../roles/nginx'
   tags:
     - nginx
-  vars:
-    targetNGINXIP: ec2-52-207-219-201.compute-1.amazonaws.com
-    targetACSIP: ec2-52-207-219-201.compute-1.amazonaws.com
-    #targetNGINXIP: 52.91.199.69
+
 
     
 
