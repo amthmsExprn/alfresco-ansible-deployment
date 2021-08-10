@@ -1,0 +1,64 @@
+---
+- name: Create download path for dependent lib repo archive in Ansible controller
+  delegate_to: localhost
+  become: false
+  file:
+    path: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}"
+    state: directory
+- name: Download dependent lib repo archive into Ansible controller
+  delegate_to: localhost
+  become: false
+  get_url:
+    url: "https://onedrive.live.com/download?cid=4BE0B98A8BEE47AD&resid=4BE0B98A8BEE47AD%212076&authkey=AFXOi0_2A3Z609I"
+    dest: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}/repoSerOfflineDep.xz"
+    validate_certs: no
+  async: 900
+  poll: 0
+  register: deptLib_download_toController
+
+- name: Create tmp dir to hold offline dependencies repo
+  file:
+    path: "/tmp/repoSerOfflineDep/"
+    state: directory
+
+- name: Copy offline repo descriptor
+  become: yes
+  become_user: root 
+  copy:
+    src: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}/offline-repo.repo"
+    dest: "/etc/yum.repos.d/"
+
+- name: Check on dependent lib repo archive download async task
+  delegate_to: localhost
+  become: false
+  #become: root
+  async_status:
+    jid: "{{ deptLib_download_toController.ansible_job_id }}"
+  register: job_result
+  until: job_result.finished
+  delay: 3
+  retries: 300
+
+- name: Transfer offline repo to target
+  unarchive:
+    src: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}/repoSerOfflineDep.xz"
+    dest: "/tmp/repoSerOfflineDep/"
+
+    
+- name: Install dependant packages
+  become: true
+  become_user: root
+  yum:
+    name: 
+      - "/tmp/repoSerOfflineDep/fontconfig-2.13.0-4.3.el7.x86_64.rpm"
+      - "/tmp/repoSerOfflineDep/dejavu-fonts-common-2.33-6.el7.noarch.rpm"
+      - "/tmp/repoSerOfflineDep/fontpackages-filesystem-1.44-8.el7.noarch.rpm"
+      - "/tmp/repoSerOfflineDep/freetype-2.8-14.el7.x86_64.rpm"
+      - "/tmp/repoSerOfflineDep/libpng-1.5.13-8.el7.x86_64.rpm"
+      - "/tmp/repoSerOfflineDep/dejavu-sans-fonts-2.33-6.el7.noarch.rpm"
+    state: present
+    disablerepo: "*"
+    enablerepo: "offline-repo"
+    releasever: "{{ ansible_distribution_major_version }}"
+    disable_gpg_check: yes
+

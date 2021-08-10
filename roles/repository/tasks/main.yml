@@ -6,14 +6,94 @@
 - name: Include OS specific variables
   include_vars: "{{ ansible_distribution }}{{ ansible_distribution_major_version }}.yml"
 
-- name: Ensure a list of packages installed
-  become: true
-  become_user: root
-  package:
-    name: "{{ item }}"
-    state: present
+#- name: Ensure a list of packages installed
+#  become: true
+#  become_user: root
+#  package:
+#    name: "{{ item }}"
+#    state: present
+#  poll: 0
+#  loop: "{{ utils_repo }}"
+
+####### Async download of product installers to control
+- name: Print async download start
+  debug:
+    msg: "Starting asynchronous download of {{ acs_zip_file }}, AMPs, WAR files"
+    
+- name: "Download {{ acs_zip_file }}"
+  delegate_to: localhost
+  become: false
+  get_url:
+    url: "{{ downloads.acs_zip_url }}"
+    dest:  "{{ role_path }}/files/{{ acs_zip_file }}" 
+    #dest: "{{ download_location }}/{{ acs_zip_file }}"
+    url_username: "{{ nexus_user }}"
+    url_password: "{{ nexus_password }}"
+    checksum: "sha1:{{ downloads.acs_zip_sha1_checksum }}"
+  register: distribution_download_toController
+  async: 900
+  poll: 0   
+
+- name: Create  download folders on controller
+  delegate_to: localhost
+  become: false
+  file:
+    path: "{{ role_path }}/files{{ item }}"
+    state: directory
+  loop:
+     - "{{ content_folder }}/amps_repo"
+     - "{{ content_folder }}/amps_share"
+     - "{{ content_folder }}/web-server/webapps"
+
+- name: Download AMPS
+  #become: true
+  #become_user: root
+  become: false
+  delegate_to: localhost
+  loop: "{{ query('items', amp_downloads) }}"
+  get_url:
+    url: "{{ item.url }}"
+    #dest: "{{ item.dest }}"
+    dest: "{{ role_path }}/files{{ item.dest }}"
+    url_username: "{{ nexus_user }}"
+    url_password: "{{ nexus_password }}"
+  register: amp_download_result_toController
+  async: 900
   poll: 0
-  loop: "{{ utils_repo }}"
+
+- name: Download postgresql jar
+  #become: true
+  #become_user: root
+  delegate_to: localhost
+  become: false  
+  get_url:
+    url: "{{ dependencies_url.postgresql_connector }}"
+    dest:  "{{ role_path }}/files/postgresql.jar"
+    #dest: "{{ tomcat_config_dir }}/lib/postgresql.jar"
+  register: postgresql_download_toController
+  when: repo_db_url == ""
+  async: 900
+  poll: 0
+  
+- name: Download war files
+  #become: true
+  #become_user: root
+  delegate_to: localhost
+  become: false
+  loop: "{{ query('items', war_downloads) }}"
+  changed_when: false
+  get_url:
+    url: "{{ item.url }}"
+    #dest: "{{ item.dest }}"
+    dest: "{{ role_path }}/files{{ item.dest }}"    
+    url_username: "{{ nexus_user }}"
+    url_password: "{{ nexus_password }}"
+  register: war_download_result_toController
+  async: 900
+  poll: 0
+
+########### End Async download block ####################
+  
 
 - name: Create folders
   become: true
@@ -44,52 +124,22 @@
      - "{{ tomcat_config_dir }}/lib"
      - "{{ tomcat_config_dir }}/conf/Catalina/localhost"
 
-- name: "Download {{ acs_zip_file }}"
-  get_url:
-    url: "{{ downloads.acs_zip_url }}"
-    dest: "{{ download_location }}/{{ acs_zip_file }}"
-    url_username: "{{ nexus_user }}"
-    url_password: "{{ nexus_password }}"
-    checksum: "sha1:{{ downloads.acs_zip_sha1_checksum }}"
-    owner: "{{ username }}"
-    group: "{{ group_name }}"
-    mode: 'u=rwx,g=rwx,o=rx'
-  register: distribution_download_result
-  async: 900
-  poll: 0
-
-- name: Download AMPS
-  become: true
-  become_user: root
-  loop: "{{ query('items', amp_downloads) }}"
-  get_url:
-    url: "{{ item.url }}"
-    dest: "{{ item.dest }}"
-    owner: "{{ username }}"
-    group: "{{ group_name }}"
-    mode: 'u=rw,g=r,o=r'
-    url_username: "{{ nexus_user }}"
-    url_password: "{{ nexus_password }}"
-  register: amp_download_result
-  async: 900
-  poll: 0
-
-- name: Download postgresql jar
-  become: true
-  become_user: root
-  get_url:
-    url: "{{ dependencies_url.postgresql_connector }}"
-    dest: "{{ tomcat_config_dir }}/lib/postgresql.jar"
-    mode: 'u=rw,g=r,o=r'
-    owner: "{{ username }}"
-    group: "{{ group_name }}"
-  register: postgresql_download
-  when: repo_db_url == ""
-  async: 900
-  poll: 0
-
+  
+  
 - name: Copy db_connector_repo to {{ tomcat_config_dir }}/lib/ folder
   block:
+    - name: Create Postgres JDBC driver directory
+      delegate_to: localhost
+      become: false
+      file:
+        path: "{{ inventory_dir }}/configuration_files/db_connector_repo/"
+        state: directory    
+    - name: Download Postgres JDBC driver
+      delegate_to: localhost
+      become: false
+      get_url:
+        url: https://jdbc.postgresql.org/download/postgresql-42.2.19.jar
+        dest: "{{ inventory_dir }}/configuration_files/db_connector_repo/db_driver.jar"
     - name: Copy db_connector_repo
       copy:
         src: "{{ inventory_dir }}/configuration_files/db_connector_repo/"
@@ -124,13 +174,113 @@
     line: export {{ item.key }}="{{ item.value }}"
   loop: "{{ acs_environment | dict2items }}"
 
+- name: 
+  include_tasks: install-OfflineDepLibs.yml  
+
+
+############# Check async download tasks ######################
+
 - name: Verifying if the distribution zip finished downloading
+  delegate_to: localhost
+  become: false
   async_status:
-    jid: "{{ distribution_download_result.ansible_job_id }}"
+    jid: "{{ distribution_download_toController.ansible_job_id }}"
+    #jid: "{{ distribution_download_result.ansible_job_id }}"
   until: job_result.finished
   delay: 30
   retries: 20
   register: job_result
+  
+- name: Check on amp download async task
+  delegate_to: localhost
+  become: false
+  async_status:
+    jid: "{{ item.ansible_job_id }}"
+  register: job_result
+  until: job_result.finished
+  delay: 5
+  retries: 300
+  loop: "{{ amp_download_result_toController.results }}"
+
+
+- name: Check on postgres download async task
+  delegate_to: localhost
+  become: false
+  #become: true
+  #become_user: root
+  async_status:
+    jid: "{{ postgresql_download_toController.ansible_job_id }}"
+  register: job_result
+  until: job_result.finished
+  delay: 5
+  retries: 300
+  when: repo_db_url == ""
+
+- name: Check on war download async task
+  delegate_to: localhost
+  become: false
+  #become: true
+  #become_user: root
+  async_status:
+    jid: "{{ item.ansible_job_id }}"
+  register: job_result
+  until: job_result.finished
+  delay: 5
+  retries: 300
+  loop: "{{ war_download_result_toController.results }}"
+  
+  ######### End Check async download tasks###################
+
+
+############# Transfer to target
+
+- name: "Transfer {{ acs_zip_file }}"
+  copy:
+    src:  "{{ role_path }}/files/{{ acs_zip_file }}" 
+    dest: "{{ download_location }}/{{ acs_zip_file }}"
+    owner: "{{ username }}"
+    group: "{{ group_name }}"
+    mode: 'u=rwx,g=rwx,o=rx'
+  #register: distribution_download_toController
+
+- name: Download AMPS
+  become: true
+  become_user: root
+  loop: "{{ query('items', amp_downloads) }}"
+  copy:
+    dest: "{{ item.dest }}"
+    src: "{{ role_path }}/files/{{ item.dest }}"
+    owner: "{{ username }}"
+    group: "{{ group_name }}"
+    mode: 'u=rw,g=r,o=r'
+  #register: amp_download_result_toController
+
+- name: Download postgresql jar
+  become: true
+  become_user: root
+  copy:
+    dest:  "{{ role_path }}/files/postgresql.jar"
+    src: "{{ tomcat_config_dir }}/lib/postgresql.jar"
+    mode: 'u=rw,g=r,o=r'
+    owner: "{{ username }}"
+    group: "{{ group_name }}"
+  #register: postgresql_download_toController
+  when: repo_db_url == ""
+  
+- name: Download war files
+  become: true
+  become_user: root
+  loop: "{{ query('items', war_downloads) }}"
+  changed_when: false
+  copy:
+    dest: "{{ item.dest }}"
+    src: "{{ role_path }}/files/{{ item.dest }}"    
+    owner: "{{ username }}"
+    group: "{{ group_name }}"
+    mode: 'u=rwx,g=rwx,o=rx'
+  #register: war_download_result_toController
+
+################## End Transfer to target
 
 - name: Add the configuration templates
   become: true
@@ -173,22 +323,7 @@
         path: "{{ content_folder }}/amps"
         state: absent
 
-- name: Download war files
-  become: true
-  become_user: root
-  loop: "{{ query('items', war_downloads) }}"
-  changed_when: false
-  get_url:
-    url: "{{ item.url }}"
-    dest: "{{ item.dest }}"
-    url_username: "{{ nexus_user }}"
-    url_password: "{{ nexus_password }}"
-    owner: "{{ username }}"
-    group: "{{ group_name }}"
-    mode: 'u=rwx,g=rwx,o=rx'
-  register: war_download_result
-  async: 900
-  poll: 0
+
 
 - name: Copy user provided license file
   copy:
@@ -364,14 +499,6 @@
     dest: "{{ settings_folder }}/classpath/alfresco-global.properties"
     mode: 'u=rwx,g=rwx,o=rx'
 
-- name: Check on amp download async task
-  async_status:
-    jid: "{{ item.ansible_job_id }}"
-  register: job_result
-  until: job_result.finished
-  delay: 1
-  retries: 300
-  loop: "{{ amp_download_result.results }}"
 
 - name: Create apply_amps.sh
   template:
@@ -386,27 +513,7 @@
   register: mmt_install
   changed_when: mmt_install.rc != 0
 
-- name: Check on postgres download async task
-  become: true
-  become_user: root
-  async_status:
-    jid: "{{ postgresql_download.ansible_job_id }}"
-  register: job_result
-  until: job_result.finished
-  delay: 1
-  retries: 300
-  when: repo_db_url == ""
 
-- name: Check on war download async task
-  become: true
-  become_user: root
-  async_status:
-    jid: "{{ item.ansible_job_id }}"
-  register: job_result
-  until: job_result.finished
-  delay: 2
-  retries: 300
-  loop: "{{ war_download_result.results }}"
 
 - name: Setup common loader
   become: true

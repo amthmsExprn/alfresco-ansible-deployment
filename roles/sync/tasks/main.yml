@@ -90,7 +90,7 @@
         group: "{{ group_name }}"
     - name: Copy db_connector to {{ sync_home }}/service-sync/connectors folder
       when: sync_db_url != ""
-    # for external databases. Read https://github.com/alf-wchong/alfresco-ansible-deployment/blob/v1.0/docs/deployment-guide.md#external-databases
+    # This section is for for external databases. Read https://github.com/alf-wchong/alfresco-ansible-deployment/blob/v1.0/docs/deployment-guide.md#external-databases
       copy:
         src: "{{ inventory_dir }}/configuration_files/db_connector_sync/"
         dest: "{{ sync_home }}/service-sync/connectors/"

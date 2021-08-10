@@ -1,0 +1,6 @@
+[offline-repo]
+name=CentOS-$releasever - repo
+baseurl=file:///tmp/repoSerOfflineDep/
+enabled=0
+gpgcheck=0
+

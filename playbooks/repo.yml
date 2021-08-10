@@ -1,0 +1,11 @@
+---
+
+- name: Alfresco Repository Role
+  hosts: repository
+  become: true
+  become_method: sudo
+  roles:
+    - role: '../roles/repository'
+  tags:
+    - repository
+
