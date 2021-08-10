@@ -1,6 +1,6 @@
 # This fork provides a means to perform a disconnected install of the Transformer role.
-For now, only the [ADW](roles/adw) and [Tomcat](roles/tomcat) roles have not been updated for a disconnected install. The other [roles](roles) have been and the playbooks ([repo](playbooks/repo.yml), [sync](playbooks/sync.yml), [nginx](playbooks/sync.yml), [ats](playbooks/ats.yml), [amq](playbooks/amq.yml), [sfs](playbooks/sfs.yml), [trouter](playbooks/trouter.yml), [alfss](playbooks/alfss.yml)) for the most part completes without erros on an offline RHEL7 server (ie a host that cannot connect to the internet or has no RPM repositories to retrieve packages). 
-Some roles that have triggered tasks may fail on the triggers (i.e roles having [wait_for](roles/trouter/tasks/main.yml#L106) tasks). Triggers are on the *To-Do list*.
+All roles have  been updated for a disconnected install. The [roles](roles), for the most part completes without erros on an offline RHEL7 server (ie a host that cannot connect to the internet or has no RPM repositories to retrieve packages). 
+Some roles that have triggered tasks may fail on the triggers (i.e roles having [wait_for](roles/trouter/tasks/main.yml#L106) tasks). Triggers are on the *To-Do list* by running the [ACS](playbook/acs.yml) playbook.
 
 Remember to change the [host/IP of the target](https://github.com/alf-wchong/alfresco-ansible-deployment/blob/a98e00be3e9a6c44b429f6f0280aeb6fec7d117e/playbooks/ats.yml#L11) in the playbook.
 
