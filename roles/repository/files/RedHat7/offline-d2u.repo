@@ -1,0 +1,6 @@
+[offline-dos2unix]
+name=CentOS-$releasever - dos2unix
+baseurl=file:///tmp/dos2unixSerOfflineDep/
+enabled=0
+gpgcheck=0
+

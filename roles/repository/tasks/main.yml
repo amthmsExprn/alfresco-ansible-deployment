@@ -527,10 +527,13 @@
 - name: Add PostResources to alfresco.xml
   become: true
   become_user: root
-  lineinfile:
+  #lineinfile:
+  replace:
     path: "{{ tomcat_config_dir }}/conf/Catalina/localhost/alfresco.xml"
-    regexp: '<PostResources base='
-    line: '<PostResources base="/opt/alfresco/modules/acs-platform"'
+    #regexp: '<PostResources base='
+    regexp: '/modules/platform'
+    #line: '<PostResources base="/opt/alfresco/modules/acs-platform"'
+    replace: '/modules/acs-platform'
 
     
 - name: Implement fix for insufficient cache to alfresco.xml
@@ -547,10 +550,13 @@
 - name: Add PostResources to share.xml
   become: true
   become_user: root
-  lineinfile:
+  #lineinfile:
+  replace:
     path: "{{ tomcat_config_dir }}/conf/Catalina/localhost/share.xml"
-    regexp: '<PostResources base='
-    line: '<PostResources base="/opt/alfresco/modules/acs-share"'
+    #regexp: '<PostResources base='
+    regexp: '/modules/share'
+    replace: 'modules/acs-share'
+    #line: '<PostResources base="/opt/alfresco/modules/acs-share"'
 
 - name: Implement fix for insufficient cache to share.xml
 # described in tech support article 000013684  
@@ -562,7 +568,10 @@
     line: '  <Resources cachingAllowed="true" cacheMaxSize="100000"/>'
     insertbefore: "</Context>"    
     state: present
-
+    
+# it is observed that alfresco.xml provided in the ACS zip has DOS style carriage returns in them. This task cleans up the XML for use in Linux.    
+- name: 
+  include_tasks: dos2unix-CleanXMLDescriptors.yml
 
 - name: Insert or Update custom properties added through configuration_files/alfresco-global.properties
   blockinfile:

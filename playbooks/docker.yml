@@ -1,0 +1,12 @@
+---
+- name: Docker Database Role
+  hosts: database
+  become: true
+  become_method: sudo
+  roles:
+    - role: '../roles/dockerDB'
+  tags:
+    - dockerDB
+    
+
+

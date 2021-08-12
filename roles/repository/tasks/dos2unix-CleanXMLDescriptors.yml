@@ -1,0 +1,73 @@
+---
+- name: Gather the package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Create download path for dependent lib repo archive in Ansible controller
+  when: "'dos2unix' not in ansible_facts.packages"
+  delegate_to: localhost
+  become: false
+  file:
+    path: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}"
+    state: directory
+    
+- name: Download dos2unix repo archive into Ansible controller
+  when: "'dos2unix' not in ansible_facts.packages"
+  delegate_to: localhost
+  become: false
+  get_url:
+    url: "https://onedrive.live.com/download?cid=4BE0B98A8BEE47AD&resid=4BE0B98A8BEE47AD%212079&authkey=AAh8xcGCLIq2bPc"
+    dest: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}/d2uSerOfflineDep.xz"
+    validate_certs: no
+  async: 900
+  poll: 0
+  register: dos2unix_download_toController
+
+- name: Create tmp dir to hold offline dependencies repo
+  when: "'dos2unix' not in ansible_facts.packages"
+  file:
+    path: "/tmp/dos2unixSerOfflineDep/"
+    state: directory
+
+- name: Copy offline dos2unix repo
+  become: yes
+  become_user: root 
+  copy:
+    src: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}/offline-d2u.repo"
+    dest: "/etc/yum.repos.d/"
+
+- name: Check on dependent lib repo archive download async task
+  when: "'dos2unix' not in ansible_facts.packages"
+  delegate_to: localhost
+  become: false
+  #become: root
+  async_status:
+    jid: "{{ dos2unix_download_toController.ansible_job_id }}"
+  register: job_result
+  until: job_result.finished
+  delay: 3
+  retries: 300
+
+- name: Transfer offline repo to target
+  when: "'dos2unix' not in ansible_facts.packages"
+  unarchive:
+    src: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}/d2uSerOfflineDep.xz"
+    dest: "/tmp/dos2unixSerOfflineDep/"
+
+    
+- name: Install dos2unix
+  when: "'dos2unix' not in ansible_facts.packages"
+  become: true
+  become_user: root
+  yum:
+    name: "/tmp/dos2unixSerOfflineDep/dos2unix-6.0.3-7.el7.x86_64.rpm"
+    state: present
+    disablerepo: "*"
+    enablerepo: "offline-dos2unix"
+    releasever: "{{ ansible_distribution_major_version }}"
+    disable_gpg_check: yes
+
+# https://stackoverflow.com/questions/51997433/how-to-execute-dos2unix-command-on-multiple-files-in-the-same-directory/51998362
+- name: Clean up XML descriptors
+  shell: "dos2unix {{ tomcat_config_dir }}/conf/Catalina/localhost/*.xml"
+
