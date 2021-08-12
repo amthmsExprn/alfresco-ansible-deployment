@@ -1,5 +1,6 @@
 # Ignore large files
 configuration_files/db_connector_repo/db_driver.jar
+roles/adw/files/alfresco-digital-workspace-*.zip
 roles/activemq/files/apache-activemq*.tar.gz
 roles/nginx/files/RedHat7/ngixSerOfflineDep.xz
 roles/java/files/OpenJDK11U-jdk_x64_linux*.tar.gz

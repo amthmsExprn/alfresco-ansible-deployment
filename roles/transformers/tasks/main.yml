@@ -131,35 +131,41 @@
 
 
 #Hack to work around the find module using the asterisk literally instead of a wild card.
-- name: Move versioned LibreOffice directory to generic
-  become: yes
-  become_user: root
-  command: bash -c 'mv {{ download_location }}/LibreOffice* {{ download_location }}/LibreOffice'
-  #command: "mv {{ download_location }}/LibreOffice*/RPMS {{ download_location }}/LibreOffice/RPMS"
+#- name: Move versioned LibreOffice directory to generic
+#  become: yes
+#  become_user: root
+#  command: bash -c 'mv {{ download_location }}/LibreOffice* {{ download_location }}/LibreOffice'
+#  #command: "mv {{ download_location }}/LibreOffice*/RPMS {{ download_location }}/LibreOffice/RPMS"
+#  when: loffice_exists.rc != 0
+
+#- name: Find all rpm files in "{{ download_location }}/LibreOffice*/RPMS" folder
+#  find:
+#    paths: "{{ download_location }}/LibreOffice/RPMS"
+#    patterns: "*.rpm"
+#    recurse: true
+#  register: rpm_files
+
+#- name: Setting rpm_list
+#  become: true
+#  become_user: root
+#  set_fact:
+#    rpm_list: "{{ rpm_files.files | map(attribute='path') | list}}"
+
+#- name: install LibreOffice rpm files
+#  yum:
+#    name: "{{rpm_list}}"
+#    disablerepo: "\\*"
+#    enablerepo: "offline-im"
+#    releasever: "{{ ansible_distribution_major_version }}"
+#    disable_gpg_check: yes
+#    state: present
+#  when: loffice_exists.rc != 0
+- name: install LibreOffice
+  shell: "yum --disablerepo=* --enablerepo=offline-im localinstall -y {{ download_location }}/LibreOffice*/RPMS/*.rpm"
+  args:
+    warn: false
   when: loffice_exists.rc != 0
-
-- name: Find all rpm files in "{{ download_location }}/LibreOffice*/RPMS" folder
-  find:
-    paths: "{{ download_location }}/LibreOffice/RPMS"
-    patterns: "*.rpm"
-    recurse: true
-  register: rpm_files
-
-- name: Setting rpm_list
-  become: true
-  become_user: root
-  set_fact:
-    rpm_list: "{{ rpm_files.files | map(attribute='path') | list}}"
-
-- name: install LibreOffice rpm files
-  yum:
-    name: "{{rpm_list}}"
-    disablerepo: "\\*"
-    enablerepo: "offline-im"
-    releasever: "{{ ansible_distribution_major_version }}"
-    disable_gpg_check: yes
-    state: present
-  when: loffice_exists.rc != 0
+  changed_when: false
 
 - name: Create transform-services folder
   file:
@@ -304,21 +310,21 @@
   changed_when: false  
   
 #activate when the rest of ACS is done  
-#- name: Getting go_signal tengine-aio service to start
-#  block:
-#  - name: Check for activemq "{{ activemq_host }}"
-#    wait_for:
-#      host: "{{ activemq_host }}"
-#      port: 61616
-#    register: activemq_go
+- name: Getting go_signal tengine-aio service to start
+  block:
+  - name: Check for activemq "{{ activemq_host }}"
+    wait_for:
+      host: "{{ activemq_host }}"
+      port: 61616
+    register: activemq_go
 
 #activate when the rest of ACS is done  
-#- name: Enable and start AIO service
-#  systemd:
-#    name: alfresco-tengine-aio.service
-#    state: started
-#    enabled: true
-#  when: not activemq_go.failed
+- name: Enable and start AIO service
+  systemd:
+    name: alfresco-tengine-aio.service
+    state: started
+    enabled: true
+  when: not activemq_go.failed
 
   
 ...

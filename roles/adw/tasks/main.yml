@@ -5,6 +5,13 @@
     path: "{{ nginx_folder }}/{{ request_uri }}/"
     state: directory
     mode: 'u=rwx,g=rx,o=rx'
+    
+- name: Create ADW download directory in controller
+  delegate_to: localhost
+  become: false
+  file:
+    path: "{{ role_path }}/files/"
+    state: directory
 
 - name: Download alfresco-digital-workspace-{{ adw.version }}.zip to controller
   delegate_to: localhost

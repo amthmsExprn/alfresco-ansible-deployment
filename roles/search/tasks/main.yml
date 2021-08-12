@@ -187,4 +187,5 @@
   systemd:
     name: alfresco-search.service
     state: started
+    no_block: true
     enabled: true

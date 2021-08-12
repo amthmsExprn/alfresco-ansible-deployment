@@ -532,6 +532,18 @@
     regexp: '<PostResources base='
     line: '<PostResources base="/opt/alfresco/modules/acs-platform"'
 
+    
+- name: Implement fix for insufficient cache to alfresco.xml
+# described in tech support article 000013684  
+# and mirrored in https://hub.alfresco.com/t5/alfresco-content-services-forum/planning-upgrade-alfresco-community-5-0-b-to-6-2/m-p/302678#M21740
+  become: true
+  become_user: root
+  lineinfile:
+    path: "{{ tomcat_config_dir }}/conf/Catalina/localhost/alfresco.xml"
+    line: '  <Resources cachingAllowed="true" cacheMaxSize="100000"/>'
+    insertbefore: "</Context>"    
+    state: present
+
 - name: Add PostResources to share.xml
   become: true
   become_user: root
@@ -539,6 +551,18 @@
     path: "{{ tomcat_config_dir }}/conf/Catalina/localhost/share.xml"
     regexp: '<PostResources base='
     line: '<PostResources base="/opt/alfresco/modules/acs-share"'
+
+- name: Implement fix for insufficient cache to share.xml
+# described in tech support article 000013684  
+# and mirrored in https://hub.alfresco.com/t5/alfresco-content-services-forum/planning-upgrade-alfresco-community-5-0-b-to-6-2/m-p/302678#M21740
+  become: true
+  become_user: root
+  lineinfile:
+    path: "{{ tomcat_config_dir }}/conf/Catalina/localhost/share.xml"
+    line: '  <Resources cachingAllowed="true" cacheMaxSize="100000"/>'
+    insertbefore: "</Context>"    
+    state: present
+
 
 - name: Insert or Update custom properties added through configuration_files/alfresco-global.properties
   blockinfile:
