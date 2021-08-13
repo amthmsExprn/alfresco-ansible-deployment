@@ -53,6 +53,31 @@
         remote_src: false
       when: sync_download_result is succeeded
 
+# This section is for for external databases. Read https://github.com/alf-wchong/alfresco-ansible-deployment/blob/v1.0/docs/deployment-guide.md#external-databases      
+- name: Downloa db_connector_sync
+  when: sync_db_url != ""   
+  block:
+    - name: Create Postgres JDBC driver directory
+      delegate_to: localhost
+      become: false
+      file:
+        path: "{{ inventory_dir }}/configuration_files/db_connector_sync/"
+        state: directory    
+    - name: Download Postgres JDBC driver
+      delegate_to: localhost
+      become: false
+      get_url:
+        url: https://jdbc.postgresql.org/download/postgresql-42.2.19.jar
+        dest: "{{ inventory_dir }}/configuration_files/db_connector_sync/db_driver.jar"
+    - name: Copy db_connector to {{ sync_home }}/service-sync/connectors folder
+      copy:
+        #src: "{{ inventory_dir }}/configuration_files/db_connector_sync/db_driver.jar"
+        src: "{{ inventory_dir }}/configuration_files/db_connector_sync/"
+        dest: "{{ sync_home }}/service-sync/connectors/"
+        owner: "{{ username }}"
+        group: "{{ group_name }}"
+        mode: 'u=rwx,g=rwx,o=rx'
+
 
 
 
@@ -88,15 +113,6 @@
         mode: 'u=rwx,g=rwx,o=rx'
         owner: "{{ username }}"
         group: "{{ group_name }}"
-    - name: Copy db_connector to {{ sync_home }}/service-sync/connectors folder
-      when: sync_db_url != ""
-    # This section is for for external databases. Read https://github.com/alf-wchong/alfresco-ansible-deployment/blob/v1.0/docs/deployment-guide.md#external-databases
-      copy:
-        src: "{{ inventory_dir }}/configuration_files/db_connector_sync/"
-        dest: "{{ sync_home }}/service-sync/connectors/"
-        owner: "{{ username }}"
-        group: "{{ group_name }}"
-        mode: 'u=rwx,g=rwx,o=rx'
 
 
 

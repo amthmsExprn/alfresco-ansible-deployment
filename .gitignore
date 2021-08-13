@@ -1,5 +1,6 @@
 # Ignore large files
 configuration_files/db_connector_repo/db_driver.jar
+configuration_files/db_connector_sync/db_driver.jar
 roles/dockerDB/files/RedHat7/dockerSerOfflineDep.xz
 roles/adw/files/alfresco-digital-workspace-*.zip
 roles/activemq/files/apache-activemq*.tar.gz
