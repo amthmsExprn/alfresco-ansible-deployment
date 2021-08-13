@@ -1,0 +1,6 @@
+[offline-docker]
+name=CentOS-$releasever - docker
+baseurl=file:///tmp/dockerSerOfflineDep/
+enabled=0
+gpgcheck=0
+

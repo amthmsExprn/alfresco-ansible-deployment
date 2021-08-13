@@ -7,15 +7,34 @@
       JAVA_HOME: "{{ java_home }}"
   failed_when: false
   changed_when: search_install_check.rc != 0
-
-- name: Ensure a list of packages installed
+  
+- include_tasks: install-OfflineDepLibs.yml
+  when: search_install_check.rc != 0
+  
+- name: Install dependant package.
   become: true
   become_user: root
-  package:
-    name: "{{ item }}"
-    state: present
-  poll: 0
-  loop: "{{ utils_search }}"
+  block:
+    - name: Install Unzip, CA-Cert, Open-SSL
+      yum:
+        name: 
+          - "/tmp/searchSerOfflineDep/unzip-6.0-22.el7_9.x86_64.rpm"
+          - "/tmp/searchSerOfflineDep/ca-certificates-2020.2.41-70.0.el7_8.noarch.rpm"
+          - "/tmp/searchSerOfflineDep/openssl-1.0.2k-21.el7_9.x86_64.rpm"
+        state: present
+        disablerepo: "*"
+        enablerepo: "offline-ss"
+        releasever: "{{ ansible_distribution_major_version }}"
+        disable_gpg_check: yes
+
+#- name: Ensure a list of packages installed
+#  become: true
+#  become_user: root
+#  package:
+#    name: "{{ item }}"
+#    state: present
+#  poll: 0
+#  loop: "{{ utils_search }}"
 
 - name: Create search binaries, config and data directories
   become: true

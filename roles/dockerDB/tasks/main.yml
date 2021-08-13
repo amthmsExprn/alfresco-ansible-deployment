@@ -1,0 +1,126 @@
+---
+- name: Gather the package facts
+  ansible.builtin.package_facts:
+    manager: auto
+    
+- name: Create download path for dependent lib  archive in Ansible controller
+  when: "'docker-ce' not in ansible_facts.packages"
+  delegate_to: localhost
+  become: false
+  file:
+    path: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}"
+    state: directory
+    
+- name: Download docker repo archive into Ansible controller
+  when: "'docker-ce' not in ansible_facts.packages"
+  delegate_to: localhost
+  become: false
+  get_url:
+    url: "https://onedrive.live.com/download?cid=4BE0B98A8BEE47AD&resid=4BE0B98A8BEE47AD%212078&authkey=AA03RZUS7cBLFG0" 
+    dest: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}/dockerSerOfflineDep.xz"
+    validate_certs: no
+  async: 900
+  poll: 0
+  register: dockerserofflInedep_toController
+
+- name: Create tmp dir to hold offline dependencies repo
+  when: "'docker-ce' not in ansible_facts.packages"
+  file:
+    path: "/tmp/dockerSerOfflineDep/"
+    state: directory
+
+- name: Copy offline docker repo
+  become: yes
+  become_user: root 
+  copy:
+    src: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}/offline-docker.repo"
+    dest: "/etc/yum.repos.d/"
+
+- name: Create fakeDB PV paths
+  become: true
+  become_user: root
+  shell:
+    cmd: "mkdir -p /opt/fakeDB/pgdb-sync /opt/fakeDB/pgdb&&chcon -R -t svirt_sandbox_file_t /opt/fakeDB/pgdb-sync /opt/fakeDB/pgdb"
+    
+- name: Check on dependent lib repo archive download async task
+  when: "'docker-ce' not in ansible_facts.packages"
+  delegate_to: localhost
+  become: false
+  #become: root
+  async_status:
+    jid: "{{ dockerserofflInedep_toController.ansible_job_id }}"
+  register: job_result
+  until: job_result.finished
+  delay: 3
+  retries: 300
+  
+- name: Transfer offline repo to target
+  when: "'docker-ce' not in ansible_facts.packages"
+  unarchive:
+    src: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}/dockerSerOfflineDep.xz"
+    dest: "/tmp/dockerSerOfflineDep/"
+    
+    
+- name: Install docker
+  when: "'docker-ce' not in ansible_facts.packages"
+  become: true
+  become_user: root
+  yum:
+    name: 
+      - "/tmp/dockerSerOfflineDep/docker-ce-20.10.8-3.el7.x86_64.rpm"
+      - "/tmp/dockerSerOfflineDep/docker-ce-cli-20.10.8-3.el7.x86_64.rpm"
+      - "/tmp/dockerSerOfflineDep/containerd.io-1.4.9-3.1.el7.x86_64.rpm"
+    state: present
+    disablerepo: "*"
+    enablerepo: "offline-docker"
+    releasever: "{{ ansible_distribution_major_version }}"
+    disable_gpg_check: yes
+    
+- name: Start docker services
+  service:
+    name: docker
+    state: started
+    
+    
+- name: Run DB docker containers
+  become: true
+  become_user: root
+  ignore_errors: yes
+  shell:
+    cmd: "docker run -d -p 5442:5432 -e POSTGRES_PASSWORD=ppp -e POSTGRES_USER=alfresco -e POSTGRES_DB=alfresco-sync --name=Alf-PGSync -v /opt/fakeDB/pgdb-sync:/var/lib/postgresql/data:Z postgres:11.12&&docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=ppp -e POSTGRES_USER=alfresco -e POSTGRES_DB=alfresco --name=Alf-PG -v /opt/fakeDB/pgdb:/var/lib/postgresql/data:Z postgres:11.12&&docker ps"
+  
+     
+- name: Run pgAdmin
+  ignore_errors: yes
+  become: true
+  become_user: root
+  shell:
+    cmd: "docker run -p 8877:80  -e 'PGADMIN_DEFAULT_EMAIL=a@a.net'  -e 'PGADMIN_DEFAULT_PASSWORD=aaa'  --name=pgAdmin -d dpage/pgadmin4"
+  
+- name: Get running containers
+  become: true
+  become_user: root
+  shell:
+    cmd: "docker ps --no-trunc"
+  register: dockerOutput
+  
+- name: Print running containers
+  debug:
+    msg: "{{ dockerOutput.stdout_lines }}"
+      
+
+
+
+#  docker_container:
+#    name: pgadmin4
+#    state: started
+#    published_ports: 8877:80
+#    env:
+#      PGADMIN_DEFAULT_EMAIL: "a@a.net"
+#      PGADMIN_DEFAULT_PASSWORD: "aaa" 
+    
+    
+     
+    
+    
+ 
