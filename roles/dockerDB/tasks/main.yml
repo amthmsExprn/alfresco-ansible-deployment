@@ -80,18 +80,47 @@
   service:
     name: docker
     state: started
-    sleep: 3
     
-    
-
     
 - name: Run DB docker containers
   become: true
   become_user: root
+  ignore_errors: yes
   shell:
     cmd: "docker run -d -p 5442:5432 -e POSTGRES_PASSWORD=ppp -e POSTGRES_USER=alfresco -e POSTGRES_DB=alfresco-sync --name=Alf-PGSync -v /opt/fakeDB/pgdb-sync:/var/lib/postgresql/data:Z postgres:11.12&&docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=ppp -e POSTGRES_USER=alfresco -e POSTGRES_DB=alfresco --name=Alf-PG -v /opt/fakeDB/pgdb:/var/lib/postgresql/data:Z postgres:11.12&&docker ps"
+  
      
- 
+- name: Run pgAdmin
+  ignore_errors: yes
+  become: true
+  become_user: root
+  shell:
+    cmd: "docker run -p 8877:80  -e 'PGADMIN_DEFAULT_EMAIL=a@a.net'  -e 'PGADMIN_DEFAULT_PASSWORD=aaa'  --name=pgAdmin -d dpage/pgadmin4"
+  
+- name: Get running containers
+  become: true
+  become_user: root
+  shell:
+    cmd: "docker ps --no-trunc"
+  register: dockerOutput
+  
+- name: Print running containers
+  debug:
+    msg: "{{ dockerOutput.stdout_lines }}"
+      
+
+
+
+#  docker_container:
+#    name: pgadmin4
+#    state: started
+#    published_ports: 8877:80
+#    env:
+#      PGADMIN_DEFAULT_EMAIL: "a@a.net"
+#      PGADMIN_DEFAULT_PASSWORD: "aaa" 
+    
+    
+     
     
     
  

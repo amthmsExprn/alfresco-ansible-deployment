@@ -41,6 +41,8 @@
     path: "{{ role_path }}/files{{ item }}"
     state: directory
   loop:
+  # content_folder = "{{ binaries_folder }}/content-services-{{ acs.version }}"
+  # binaries_folder = /opt/alfresco
      - "{{ content_folder }}/amps_repo"
      - "{{ content_folder }}/amps_share"
      - "{{ content_folder }}/web-server/webapps"
@@ -233,15 +235,15 @@
 
 
 ############# Transfer to target
-
-- name: "Transfer {{ acs_zip_file }}"
-  copy:
-    src:  "{{ role_path }}/files/{{ acs_zip_file }}" 
-    dest: "{{ download_location }}/{{ acs_zip_file }}"
-    owner: "{{ username }}"
-    group: "{{ group_name }}"
-    mode: 'u=rwx,g=rwx,o=rx'
-  #register: distribution_download_toController
+# Troubleshoot misplaced stuff
+#- name: "Transfer {{ acs_zip_file }}"
+#  copy:
+#    src:  "{{ role_path }}/files/{{ acs_zip_file }}" 
+#    dest: "{{ download_location }}/{{ acs_zip_file }}"
+#    owner: "{{ username }}"
+#    group: "{{ group_name }}"
+#    mode: 'u=rwx,g=rwx,o=rx'
+#  #register: distribution_download_toController
 
 - name: Download AMPS
   become: true
@@ -293,15 +295,23 @@
     mode: 'u=rwx,g=rwx,o=rx'
   loop: "{{ share_templates }}"
   changed_when: false
+  
+  
+#debug
+#- name: Wait
+#  pause:
+#    prompt: "Before Extract {{ acs_zip_file }} into {{ content_folder }}"
 
 - name: Extract {{ acs_zip_file }} into {{ content_folder }}
   become: true
   become_user: "{{ username }}"
   unarchive:
-    src: "{{ download_location }}/{{ acs_zip_file }}"
+    #src: "{{ download_location }}/{{ acs_zip_file }}"
+    src: "{{ role_path }}/files/{{ acs_zip_file }}" 
     dest: "{{ content_folder }}"
-    remote_src: true
-    creates: "{{ content_folder }}/bin"
+    # content_folder = "/opt/alfresco/content-services-{{ acs.version }}"
+    remote_src: false
+    #creates: "{{ content_folder }}/bin"
 
 - name: Move alfresco-share-services.amp to {{ content_folder }}/amps_repo folder
   block:
@@ -395,6 +405,12 @@
       when: use_custom_keystores
   when: acs.version is version('7.0.0', 'lt')
 
+#debug
+#- name: Wait
+#  pause:
+#    prompt: "Move classes folder"
+
+
 - name: Move classes folder
   block:
     - name: Check if classes files exists
@@ -415,6 +431,11 @@
       file:
         path: "{{ content_folder }}/shared/classes/"
         state: absent
+
+#debug
+#- name: Wait
+#  pause:
+#    prompt: "Move conf folder"
 
 - name: Move conf folder
   block:
@@ -524,16 +545,26 @@
     regexp: '^common.loader='
     line: "common.loader=\"/etc/opt/alfresco/content-services/classpath\",\"${catalina.base}/lib\",\"${catalina.base}/lib/*.jar\",\"{{ content_folder }}/web-server/lib\",\"{{ content_folder }}/web-server/lib/*.jar\",\"${catalina.home}/lib\",\"${catalina.home}/lib/*.jar\""
 
+#- name: Add PostResources to alfresco.xml
+#  become: true
+#  become_user: root
+#  #lineinfile:
+#  replace:
+#    path: "{{ tomcat_config_dir }}/conf/Catalina/localhost/alfresco.xml"
+#    #regexp: '<PostResources base='
+#    regexp: '/modules/platform'
+#    #line: '<PostResources base="/opt/alfresco/modules/acs-platform"'
+#    replace: '/modules/acs-platform'
+
 - name: Add PostResources to alfresco.xml
   become: true
   become_user: root
-  #lineinfile:
-  replace:
+  lineinfile:
     path: "{{ tomcat_config_dir }}/conf/Catalina/localhost/alfresco.xml"
-    #regexp: '<PostResources base='
-    regexp: '/modules/platform'
-    #line: '<PostResources base="/opt/alfresco/modules/acs-platform"'
-    replace: '/modules/acs-platform'
+    regexp: '<PostResources base='
+    line: '<PostResources base="/opt/alfresco/modules/acs-platform"'
+
+
 
     
 - name: Implement fix for insufficient cache to alfresco.xml
@@ -547,16 +578,23 @@
     insertbefore: "</Context>"    
     state: present
 
+#- name: Add PostResources to share.xml
+#  become: true
+#  become_user: root
+#  #lineinfile:
+#  replace:
+#    path: "{{ tomcat_config_dir }}/conf/Catalina/localhost/share.xml"
+#    #regexp: '<PostResources base='
+#    regexp: '/modules/share'
+#    replace: 'modules/acs-share'
+#    #line: '<PostResources base="/opt/alfresco/modules/acs-share"'
 - name: Add PostResources to share.xml
   become: true
   become_user: root
-  #lineinfile:
-  replace:
+  lineinfile:
     path: "{{ tomcat_config_dir }}/conf/Catalina/localhost/share.xml"
-    #regexp: '<PostResources base='
-    regexp: '/modules/share'
-    replace: 'modules/acs-share'
-    #line: '<PostResources base="/opt/alfresco/modules/acs-share"'
+    regexp: '<PostResources base='
+    line: '<PostResources base="/opt/alfresco/modules/acs-share"'
 
 - name: Implement fix for insufficient cache to share.xml
 # described in tech support article 000013684  
@@ -582,6 +620,37 @@
     insertafter: EOF
     block: "{{ lookup('file', role_path + '/../../configuration_files/alfresco-global.properties') }}"
   notify: alfresco-content-restart
+  
+- name: Explode WAR because Tomcat doesn't seem to do it properly
+  block:
+    - name: "Check if {{ tomcat_working }}/webapps/alfresco exists"
+      stat:
+        path: "{{ tomcat_working }}/webapps/alfresco"
+      register: alfrescoPath
+    - name: "Create {{ tomcat_working }}/webapps/alfresco"
+      when: not alfrescoPath.stat.exists
+      file:
+        path: "{{ tomcat_working }}/webapps/alfresco"
+        state: directory
+        owner: "{{ username }}"
+        group: "{{ group_name }}"
+        mode: 'u=rwx,g=rx,o=rx'
+    - name: Explode Alfresco WAR
+      when: not alfrescoPath.stat.exists
+      unarchive: 
+        dest: "{{ tomcat_working }}/webapps/alfresco"
+        src: "{{ content_folder }}/web-server/webapps/alfresco.war"
+        remote_src: yes
+        owner: "{{ username }}"
+        group: "{{ group_name }}"
+        mode: 'u=rwx,g=rx,o=rx'
+  
+
+
+#- name: Check on Exploded WAR
+#  pause:
+#    prompt: "Check the exploded WAR in {{ tomcat_working }}/webapps/alfresco"
+    
 
 - name: Notify alfresco content service
   wait_for:

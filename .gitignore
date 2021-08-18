@@ -9,9 +9,11 @@ roles/java/files/OpenJDK11U-jdk_x64_linux*.tar.gz
 roles/repository/files/RedHat7/repoSerOfflineDep.xz
 roles/repository/files/RedHat7/d2uSerOfflineDep.xz
 roles/repository/files/alfresco-content-services-distribution-*.zip
-roles/repository/files/opt/alfresco/content-services-7.0.0/amps_repo/alfresco-aos-module.amp
-roles/repository/files/opt/alfresco/content-services-*/amps_repo/alfresco-googledrive-repo-enterprise.amp
-roles/repository/files/opt/alfresco/content-services-*/web-server/webapps/api-explorer.war
+#roles/repository/files/opt/alfresco/content-services-7.0.0/amps_repo/alfresco-device-sync-repo.amp
+#roles/repository/files/opt/alfresco/content-services-7.0.0/amps_repo/alfresco-aos-module.amp
+#roles/repository/files/opt/alfresco/content-services-*/amps_repo/alfresco-googledrive-repo-enterprise.amp
+#roles/repository/files/opt/alfresco/content-services-*/web-server/webapps/api-explorer.war
+roles/repository/files/opt
 roles/search/files/alfresco-search-services-*.zip
 roles/search/files/RedHat7/searchSerOfflineDep.xz
 roles/search/files/CentOS7/searchSerOfflineDep.xz
@@ -23,10 +25,12 @@ roles/transformers/files/libreoffice.tar.gz
 roles/transformers/files/libreoffice-dist-*.gz
 roles/transformers/files/alfresco-pdf-renderer-*.tgz
 roles/transformers/files/alfresco-transform-core-aio-boot-*.jar
+roles/transformers/files/CentOS7/ImageMagick/imagemagick-distribution-linux.rpm
+roles/transformers/files/RedHat7/ImageMagick/imagemagick-distribution-linux.rpm
 roles/transformers/files/CentOS7/ImageMagick/imagemagick-distribution-libs-linux.rpm
 roles/transformers/files/RedHat7/ImageMagick/imagemagick-distribution-libs-linux.rpm
 roles/trouter/files/RedHat7/trouterSerOfflineDep.xz
-roles/trouter/files/alfresco-transform-router-*jar
+roles/trouter/files/alfresco-transform-router-*.jar
 
 
 
