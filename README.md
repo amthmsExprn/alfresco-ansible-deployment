@@ -1,4 +1,4 @@
-# This fork provides a means to perform a disconnected install of the Transformer role.
+# This fork provides a means to perform a disconnected install on a [RHEL7.9](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/7.9_release_notes/index) target.
 All roles have  been updated for a disconnected install. The [roles](roles), for the most part completes without erros on an offline RHEL7 server (ie a host that cannot connect to the internet or has no RPM repositories to retrieve packages). 
 Some roles that have triggered tasks may fail on the triggers (i.e roles having [wait_for](roles/trouter/tasks/main.yml#L106) tasks). Triggers are on the *To-Do list* by running the [ACS](playbook/acs.yml) playbook.
 
