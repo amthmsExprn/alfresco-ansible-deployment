@@ -106,7 +106,7 @@
     marker: "# {mark} ACTIVEMQ ENV VARS"
     block: |
       export ACTIVEMQ_HOME={{ activemq_home }}
-      export ACTIVEMQ_HOST={{ activemq_host }}
+      export ACTIVEMQ_HOST={{ activemq_host_internal }}
 
 - name: Create log file with correct permissions
   become: true

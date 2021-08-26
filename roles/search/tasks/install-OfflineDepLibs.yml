@@ -13,6 +13,10 @@
         dest: "{{ role_path }}/files/{{ ansible_distribution }}{{ ansible_distribution_major_version }}/searchSerOfflineDep.xz"
         validate_certs: no
         timeout: 950
+      retries: 5
+      delay: 1
+      register: downloadOneDrive
+      until: downloadOneDrive is not failed
     
 
 

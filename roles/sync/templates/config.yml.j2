@@ -28,7 +28,7 @@ messaging:
                    uri: syncActivemq:${messaging.events.repo.node.endpoint.uriName}
                    bean: org.apache.activemq:type=Broker,brokerName=localhost,destinationType=${messaging.events.repo.node.endpoint.type},destinationName=${messaging.events.repo.node.endpoint.name}
     broker:
-        host: {{ activemq_host }}
+        host: {{ activemq_host_internal }}
         port: 61616
         protocol: tcp
         endpoint: ${messaging.broker.protocol}://${messaging.broker.host}:${messaging.broker.port}
@@ -129,7 +129,7 @@ server:
 
 repo:
     scheme: http
-    hostname: {{ repo_host }}
+    hostname: {{ repo_host_internal }}
     port: 8080
     syncconfig:
         url: ${repo.scheme}://${repo.hostname}:${repo.port}/alfresco/service/devicesync/config

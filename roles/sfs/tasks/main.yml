@@ -77,8 +77,8 @@
         marker: "# {mark} SFS ENV VARS"
         block: |
           export ATS_HOME={{ binaries_folder }}/transform-service
-          export ATS_TENGINE_AIO_HOST={{ ats_tengine_aio_host }}
-          export ATS_SHARED_FS_HOST={{ sfs_host }}
+          export ATS_TENGINE_AIO_HOST={{ ats_tengine_aio_host_internal }}
+          export ATS_SHARED_FS_HOST={{ sfs_host_internal }}
         insertafter: EOF
       when: test_ats_home.rc != 0 and test_activemq_home.rc != 0
 

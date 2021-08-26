@@ -39,6 +39,14 @@
   notify:
     - reload nginx
 
+# To avoid Failed to import the required Python library (libsemanage-python) on rhel7template.local's Python /usr/bin/python.
+- name: Install SELinux packages for Python.
+  yum:
+    name:
+      - libselinux-python
+      - libsemanage-python
+    state: present
+
 - name: Set httpd_can_network_connect flag on and keep it persistent across reboots
   become: true
   seboolean:

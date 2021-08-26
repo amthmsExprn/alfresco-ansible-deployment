@@ -266,8 +266,8 @@
       export IMAGEMAGICK_EXE=/usr/bin/magick
       export IMAGEMAGICK_EXE=/usr/bin/convert
       export ATS_HOME={{ binaries_folder }}/transform-service
-      export ATS_TENGINE_AIO_HOST={{ ats_tengine_aio_host }}
-      export ATS_SHARED_FS_HOST={{ sfs_host }}
+      export ATS_TENGINE_AIO_HOST={{ ats_tengine_aio_host_internal }}
+      export ATS_SHARED_FS_HOST={{ sfs_host_internal }}
     insertafter: EOF
   when: test_ats_home.rc != 0
 
@@ -312,9 +312,10 @@
 #activate when the rest of ACS is done  
 - name: Getting go_signal tengine-aio service to start
   block:
-  - name: Check for activemq "{{ activemq_host }}"
+  - name: Check for activemq "{{ activemq_host_internal }}"
     wait_for:
-      host: "{{ activemq_host }}"
+     #host: "{{ activemq_host }}|{{ ansible_eth0.ipv4.address }}"
+      host: "{{ activemq_host_internal }}"
       port: 61616
     register: activemq_go
 

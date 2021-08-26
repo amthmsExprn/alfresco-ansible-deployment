@@ -654,7 +654,8 @@
 
 - name: Notify alfresco content service
   wait_for:
-    host: "{{ db_host }}"
+          #host: "{{ db_host }}"
+    host: "{{ ansible_eth0.ipv4.address }}"
     port: "{{ repo_db_port }}"
   notify: alfresco-content-start
   when: repo_db_url == ""

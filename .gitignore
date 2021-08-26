@@ -32,9 +32,10 @@ roles/transformers/files/RedHat7/ImageMagick/imagemagick-distribution-libs-linux
 roles/trouter/files/RedHat7/trouterSerOfflineDep.xz
 roles/trouter/files/alfresco-transform-router-*.jar
 
-
-
 inventory_test.yml
+**/*.original
+
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -222,6 +222,7 @@
 
 - name: Notify sync service service to start
   wait_for:
-    host: "{{ repo_host }}"
+   #host: "{{ repo_host }}"
+    host: "{{ repo_host_internal }}"
     port: 8080
   notify: start-sync
