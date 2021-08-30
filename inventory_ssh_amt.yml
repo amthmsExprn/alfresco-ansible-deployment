@@ -64,11 +64,11 @@ all:
           ansible_private_key_file: "~/app.pem"
           ansible_user: express            
           ansible_ssh_common_args: "-o UserKnownHostsFile=/dev/null -o ControlMaster=auto -o ControlPersist=60s -o ForwardX11=no -o LogLevel=ERROR -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
-    # syncservice:
-    #   hosts:
-    #     syncservice_1:
-    #       connection: ssh
-    #       ansible_host: "ec2-3-82-232-109.compute-1.amazonaws.com"
-    #       ansible_private_key_file: "~/AWS-OktaSE-WM.pem"
-    #       ansible_user: ec2-user           
-    #       ansible_ssh_common_args: "-o UserKnownHostsFile=/dev/null -o ControlMaster=auto -o ControlPersist=60s -o ForwardX11=no -o LogLevel=ERROR -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
+    syncservice:
+      hosts:
+        syncservice_1:
+          connection: ssh
+          ansible_host: "ec2-3-82-232-109.compute-1.amazonaws.com"
+          ansible_private_key_file: "~/AWS-OktaSE-WM.pem"
+          ansible_user: ec2-user           
+          ansible_ssh_common_args: "-o UserKnownHostsFile=/dev/null -o ControlMaster=auto -o ControlPersist=60s -o ForwardX11=no -o LogLevel=ERROR -o IdentitiesOnly=yes -o StrictHostKeyChecking=no"
