@@ -62,29 +62,29 @@
   tags:
     - sfs
 
-- name: Sync Service Role
-  hosts: syncservice
-  become: true
-  become_method: sudo
-  roles:
-    - { role: '../roles/sync', when: acs.edition == "Enterprise" }
-  tags:
-    - sync
+# - name: Sync Service Role
+#   hosts: syncservice
+#   become: true
+#   become_method: sudo
+#   roles:
+#     - { role: '../roles/sync', when: acs.edition == "Enterprise" }
+#   tags:
+#     - sync
 
-- name: Nginx Role
-  hosts: nginx
-  become: true
-  become_method: sudo
-  roles:
-    - role: '../roles/nginx'
-  tags:
-    - nginx
+# - name: Nginx Role
+#   hosts: nginx
+#   become: true
+#   become_method: sudo
+#   roles:
+#     - role: '../roles/nginx'
+#   tags:
+#     - nginx
 
-- name: Alfresco Digital Workspace Role
-  hosts: adw
-  become: true
-  become_method: sudo
-  roles:
-    - { role: '../roles/adw', when: acs.edition == "Enterprise" }
-  tags:
-    - adw
+# - name: Alfresco Digital Workspace Role
+#   hosts: adw
+#   become: true
+#   become_method: sudo
+#   roles:
+#     - { role: '../roles/adw', when: acs.edition == "Enterprise" }
+#   tags:
+#     - adw

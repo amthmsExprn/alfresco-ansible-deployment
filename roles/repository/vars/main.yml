@@ -1,6 +1,10 @@
 ---
 acs_zip_file: "{%if acs.edition == 'Enterprise' %}alfresco-content-services-distribution-{{ acs.version }}.zip{% else %}alfresco-content-services-community-distribution-{{ acs.version }}.zip{% endif %}"
 
+acs_bulk_object_mapper_file: "bulkObjectMapper-1.1.0.0-SNAPSHOT.jar"
+acs_content_administrator_file: "ContentAdministratorWorkbench-1.1.0.0-SNAPSHOT.jar"
+acs_core_file: "e2ess-acs-core-1.0-SNAPSHOT.jar"
+
 content_folder: "{{ binaries_folder }}/content-services-{{ acs.version }}"
 settings_folder: "{{ config_folder }}/content-services"
 content_data_folder: "{{ data_folder }}/content-services"

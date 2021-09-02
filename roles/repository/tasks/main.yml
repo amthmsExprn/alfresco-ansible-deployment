@@ -645,7 +645,29 @@
         group: "{{ group_name }}"
         mode: 'u=rwx,g=rx,o=rx'
   
-
+- name: Copy ACS Extensions to {{ tomcat_working }}/web-server/webapps/alfresco/WEB-INF/lib/ folder
+  block:
+    - name: Copy Bulk Object Mapper Extension (from {{ role_path }}/files/{{ acs_bulk_object_mapper_file }} to  {{ tomcat_working }}/web-server/webapps/alfresco/WEB-INF/lib/)
+      copy:
+        src: "{{ role_path }}/files/{{ acs_bulk_object_mapper_file }}"
+        dest: "{{ tomcat_working }}/webapps/alfresco/WEB-INF/lib/"
+        owner: "{{ username }}"
+        group: "{{ group_name }}"
+        mode: 'u=rwx,g=rx,o=rx'
+    - name: Copy Content Administrator Extension
+      copy:
+        src: "{{ role_path }}/files/{{acs_content_administrator_file}}"
+        dest: "{{ tomcat_working }}/webapps/alfresco/WEB-INF/lib/"
+        owner: "{{ username }}"
+        group: "{{ group_name }}"
+        mode: 'u=rwx,g=rx,o=rx'
+    - name: Copy ACS Core Extension
+      copy:
+        src: "{{ role_path }}/files/{{acs_core_file}}"
+        dest: "{{ tomcat_working }}/webapps/alfresco/WEB-INF/lib/"
+        owner: "{{ username }}"
+        group: "{{ group_name }}"
+        mode: 'u=rwx,g=rx,o=rx'
 
 #- name: Check on Exploded WAR
 #  pause:

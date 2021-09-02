@@ -112,21 +112,19 @@ dependencies_url:
   jdk: "https://github.com/AdoptOpenJDK/openjdk11-upstream-binaries/releases/download/jdk-{{ dependencies_version.jdk }}+{{ dependencies_version.jdk_arch }}/OpenJDK11U-jdk_x64_linux_{{ dependencies_version.jdk }}_{{ dependencies_version.jdk_arch }}.tar.gz"
   tomcat: "http://archive.apache.org/dist/tomcat/tomcat-{{ dependencies_version.tomcat[0] }}/v{{ dependencies_version.tomcat }}/bin/apache-tomcat-{{ dependencies_version.tomcat }}.tar.gz"
 
-postgres_pass: MyPass1
+postgres_pass: alfresco
 jdk_md5_checksum: "ac1bb98fe70314a67f6eb7a87e960d44"
 
-repo_db_url: "jdbc:postgresql://172.31.54.98:5432/alfresco"
-#repo_db_url: "jdbc:postgresql://localhost:5432/alfresco"
+repo_db_url: "jdbc:postgresql://192.168.68.136:5432/alfresco"
 repo_db_driver: org.postgresql.Driver
 repo_db_name: "alfresco"
 repo_db_username: "alfresco"
-  #repo_db_password: "alfresco"
-repo_db_password: "ppp"
+repo_db_password: "alfresco"
 
-sync_db_url: "jdbc:postgresql://172.31.54.98:5442/alfresco-sync"
-#sync_db_url: "jdbc:postgresql://localhost:5432/alfresco-sync"
-sync_db_driver: org.postgresql.Driver
-sync_db_name: "alfresco-sync"
-sync_db_username: "alfresco-sync"
-  #sync_db_password: "alfresco"
-sync_db_password: "ppp"
+indentity_service_url: "https://em.expr.net/auth"
+
+# sync_db_url: "jdbc:postgresql://172.31.53.61:5442/alfresco-sync"
+# sync_db_driver: org.postgresql.Driver
+# sync_db_name: "alfresco-sync"
+# sync_db_username: "alfresco"
+# sync_db_password: "ppp"
