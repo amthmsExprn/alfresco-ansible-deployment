@@ -5,7 +5,7 @@ After=syslog.socket network.target
 [Service]
 Type=simple
 User=alfresco
-ExecStart=/opt/alfresco/ats-shared-fs.sh
+ExecStart=/opt/me2ess/alfresco/ats-shared-fs.sh
 
 [Install]
 WantedBy=multi-user.target

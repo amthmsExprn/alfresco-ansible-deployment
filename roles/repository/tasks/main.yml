@@ -42,7 +42,7 @@
     state: directory
   loop:
   # content_folder = "{{ binaries_folder }}/content-services-{{ acs.version }}"
-  # binaries_folder = /opt/alfresco
+  # binaries_folder = /opt/me2ess/alfresco
      - "{{ content_folder }}/amps_repo"
      - "{{ content_folder }}/amps_share"
      - "{{ content_folder }}/web-server/webapps"
@@ -163,7 +163,7 @@
   become: true
   become_user: "{{ username }}"
   lineinfile:
-    path: "/opt/alfresco/tomcat.sh"
+    path: "/opt/me2ess/alfresco/tomcat.sh"
     insertafter: 'CATALINA_OPTS'
     line: export CATALINA_OPTS="${CATALINA_OPTS} -Dacs.home=${ACS_HOME} -Dats-tengine-aio.host={{ ats_tengine_aio_host }} -Dats-shared-fs.host={{ sfs_host }}"
 
@@ -171,7 +171,7 @@
   become: true
   become_user: "{{ username }}"
   lineinfile:
-    path: "/opt/alfresco/tomcat.sh"
+    path: "/opt/me2ess/alfresco/tomcat.sh"
     insertafter: 'CATALINA_OPTS'
     line: export {{ item.key }}="{{ item.value }}"
   loop: "{{ acs_environment | dict2items }}"
@@ -309,7 +309,7 @@
     #src: "{{ download_location }}/{{ acs_zip_file }}"
     src: "{{ role_path }}/files/{{ acs_zip_file }}" 
     dest: "{{ content_folder }}"
-    # content_folder = "/opt/alfresco/content-services-{{ acs.version }}"
+    # content_folder = "/opt/me2ess/alfresco/content-services-{{ acs.version }}"
     remote_src: false
     #creates: "{{ content_folder }}/bin"
 
@@ -543,7 +543,7 @@
   lineinfile:
     path: "{{ tomcat_config_dir }}/conf/catalina.properties"
     regexp: '^common.loader='
-    line: "common.loader=\"/etc/opt/alfresco/content-services/classpath\",\"${catalina.base}/lib\",\"${catalina.base}/lib/*.jar\",\"{{ content_folder }}/web-server/lib\",\"{{ content_folder }}/web-server/lib/*.jar\",\"${catalina.home}/lib\",\"${catalina.home}/lib/*.jar\""
+    line: "common.loader=\"/etc/opt/me2ess/alfresco/content-services/classpath\",\"${catalina.base}/lib\",\"${catalina.base}/lib/*.jar\",\"{{ content_folder }}/web-server/lib\",\"{{ content_folder }}/web-server/lib/*.jar\",\"${catalina.home}/lib\",\"${catalina.home}/lib/*.jar\""
 
 #- name: Add PostResources to alfresco.xml
 #  become: true
@@ -553,7 +553,7 @@
 #    path: "{{ tomcat_config_dir }}/conf/Catalina/localhost/alfresco.xml"
 #    #regexp: '<PostResources base='
 #    regexp: '/modules/platform'
-#    #line: '<PostResources base="/opt/alfresco/modules/acs-platform"'
+#    #line: '<PostResources base="/opt/me2ess/alfresco/modules/acs-platform"'
 #    replace: '/modules/acs-platform'
 
 - name: Add PostResources to alfresco.xml
@@ -562,7 +562,7 @@
   lineinfile:
     path: "{{ tomcat_config_dir }}/conf/Catalina/localhost/alfresco.xml"
     regexp: '<PostResources base='
-    line: '<PostResources base="/opt/alfresco/modules/acs-platform"'
+    line: '<PostResources base="/opt/me2ess/alfresco/modules/acs-platform"'
 
 
 
@@ -587,14 +587,14 @@
 #    #regexp: '<PostResources base='
 #    regexp: '/modules/share'
 #    replace: 'modules/acs-share'
-#    #line: '<PostResources base="/opt/alfresco/modules/acs-share"'
+#    #line: '<PostResources base="/opt/me2ess/alfresco/modules/acs-share"'
 - name: Add PostResources to share.xml
   become: true
   become_user: root
   lineinfile:
     path: "{{ tomcat_config_dir }}/conf/Catalina/localhost/share.xml"
     regexp: '<PostResources base='
-    line: '<PostResources base="/opt/alfresco/modules/acs-share"'
+    line: '<PostResources base="/opt/me2ess/alfresco/modules/acs-share"'
 
 - name: Implement fix for insufficient cache to share.xml
 # described in tech support article 000013684  

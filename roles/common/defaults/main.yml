@@ -1,9 +1,9 @@
 ---
 # defaults file for roles/common
-binaries_folder: /opt/alfresco
-config_folder: /etc/opt/alfresco
-data_folder: /var/opt/alfresco
-logs_folder: /var/log/alfresco
+binaries_folder: /opt/me2ess/alfresco
+config_folder: /etc/opt/me2ess/alfresco
+data_folder: /var/opt/me2ess/alfresco
+logs_folder: /var/log/me2ess/alfresco
 
 # Default home for components
 sync_home: "{{ binaries_folder }}/sync-service"
